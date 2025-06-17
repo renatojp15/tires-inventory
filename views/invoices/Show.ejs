@@ -14,29 +14,28 @@
 <body>
   <div class="invoice-container">
     <header class="invoice-header">
-        <div class="invoice-logo">
-            <!-- Logo de la empresa (opcional) -->
-            <!-- <img src="/img/logo_empresa.png" alt="Logo Empresa" style="max-width: 150px;"> -->
+        <div class="logo-container" style="flex: 1;">
+          <img src="/img/Logo_sonix_itd.png" alt="Logo de Sonix Itd" style="width: 150px; height: auto;">
         </div>
 
-      <h1>FACTURA</h1>
-      <div class="invoice-info">
-        <p><strong>Código:</strong> <%= invoice.invoiceCode %></p>
-        <p><strong>Fecha:</strong> <%= new Date(invoice.date).toLocaleDateString() %></p>
+        <h1>FACTURA</h1>
+        <div class="invoice-info">
+          <p><strong>Código:</strong> <%= invoice.invoiceCode %></p>
+          <p><strong>Fecha:</strong> <%= new Date(invoice.date).toLocaleDateString() %></p>
+        </div>
+    </header>
 
         <hr>
 
         <h3>Datos del Cliente</h3>
-        <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
-        <p><strong>Cédula / ID:</strong> <%= invoice.customer.idNumber %></p>
-        <% if (invoice.customer.phone) { %>
-          <p><strong>Teléfono:</strong> <%= invoice.customer.phone %></p>
-        <% } %>
-        <% if (invoice.customer.address) { %>
-          <p><strong>Dirección:</strong> <%= invoice.customer.address %></p>
-        <% } %>
-      </div>
-    </header>
+          <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
+          <p><strong>Cédula / ID:</strong> <%= invoice.customer.idNumber %></p>
+          <% if (invoice.customer.phone) { %>
+            <p><strong>Teléfono:</strong> <%= invoice.customer.phone %></p>
+          <% } %>
+          <% if (invoice.customer.address) { %>
+            <p><strong>Dirección:</strong> <%= invoice.customer.address %></p>
+          <% } %>
 
     <main>
       <table class="invoice-table">
