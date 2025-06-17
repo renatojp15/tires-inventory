@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <h1>Bienvenido, <%= user.fullName %> 👋</h1>
+    <p class="username-info">Usuario: <strong><%= user.username %></strong> | Rol: <strong><%= user.role %></strong></p>
+
+    <div class="buttons-grid">
+      <a href="/invoices/new" class="dashboard-btn">Crear Factura</a>
+      <a href="/invoices/list" class="dashboard-btn">Lista de Facturas</a>
+
+      <a href="/newtires/form" class="dashboard-btn">Registrar Llantas Nuevas</a>
+      <a href="/newtires/list" class="dashboard-btn">Lista Llantas Nuevas</a>
+
+      <a href="/usedtires/form" class="dashboard-btn">Registrar Llantas Usadas</a>
+      <a href="/usedtires/list" class="dashboard-btn">Lista Llantas Usadas</a>
+
+      <a href="/login/logout" class="dashboard-btn logout">Cerrar Sesión</a>
+    </div>
+  </div>
+</body>
+</html>

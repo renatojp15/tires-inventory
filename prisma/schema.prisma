@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NewTire {
+  id             Int            @id @default(autoincrement())
+  brand          String
+  size           String
+  type           String
+  condition      String         @default("Nueva")
+  quantity       Int
+  priceUnit      Float
+  priceWholesale Float
+  priceRetail    Float
+  location       String
+  createdAt      DateTime       @default(now())
+
+  invoiceItems   InvoiceItem[]  @relation("NewTireItems")
+}
+
+model UsedTire {
+  id             Int            @id @default(autoincrement())
+  brand          String
+  size           String
+  type           String
+  condition      String         @default("Usada")
+  quantity       Int
+  priceUnit      Float
+  priceWholesale Float
+  priceRetail    Float
+  location       String
+  createdAt      DateTime       @default(now())
+
+  invoiceItems   InvoiceItem[]  @relation("UsedTireItems")
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  idNumber  String   @unique
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+
+  invoices  Invoice[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  fullName  String
+  role      String
+  password  String
+  createdAt DateTime @default(now())
+
+  invoices  Invoice[]
+}
+
+model Invoice {
+  id          Int           @id @default(autoincrement())
+  invoiceCode String        @unique
+  date        DateTime      @default(now())
+  totalAmount Float
+  customerId  Int
+  userId      Int?
+
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  user        User?         @relation(fields: [userId], references: [id])
+  items       InvoiceItem[]
+}
+
+model InvoiceItem {
+  id         Int       @id @default(autoincrement())
+  invoiceId  Int
+  tireType   String
+  tireId     Int
+  quantity   Int
+  unitPrice  Float
+  subtotal   Float
+
+  invoice    Invoice   @relation(fields: [invoiceId], references: [id])
+
+  newTire    NewTire?  @relation("NewTireItems", fields: [tireId], references: [id], map: "fk_invoiceitem_newtire")
+  usedTire   UsedTire? @relation("UsedTireItems", fields: [tireId], references: [id], map: "fk_invoiceitem_usedtire")
+}

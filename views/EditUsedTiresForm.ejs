@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Registro de Llantas Usadas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h1>Editar Llantas USADAS</h1>
+    <form action="/usedtires/edit/<%=tire.id%>" method="POST">
+      <div class="form-group">
+        <input type="text" id="brand" name="brand" placeholder="Marca" value="<%=tire.brand%>" required>
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="size" name="size" placeholder="Tamaño" value="<%=tire.size%>" required>
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="type" name="type" placeholder="Tipo" value="<%=tire.type%>" required>
+      </div>
+
+      <div class="form-group">
+        <input type="number" id="quantity" name="quantity" placeholder="Cantidad" value="<%=tire.quantity%>" required>
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="location" name="location" placeholder="Ubicación" value="<%=tire.location%>">
+      </div>
+
+      <div class="form-group">
+        <input type="number" step="0.01" id="priceUnit" name="priceUnit" placeholder="Precio Unitario" value="<%=tire.priceUnit%>">
+      </div>
+
+      <div class="form-group">
+        <input type="number" step="0.01" id="priceRetail" name="priceRetail" placeholder="Precio al Detal" value="<%=tire.priceRetail%>">
+      </div>
+
+      <div class="form-group">
+        <input type="number" step="0.01" id="priceWholesale" name="priceWholesale" placeholder="Precio al Por Mayor" value="<%=tire.priceWholesale%>">
+      </div>
+
+      <input type="hidden" name="condition" value="Nueva" />
+
+      <button type="submit">ACTUALIZAR</button>
+    </form>
+  </div>
+</body>
+</html>

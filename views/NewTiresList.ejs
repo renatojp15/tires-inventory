@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registros de Llantas Nuevas</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Registros de Llantas NUEVAS</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Marca</th>
+          <th>Tamaño</th>
+          <th>Tipo</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Precio Mayorista</th>
+          <th>Precio Detal</th>
+          <th>Ubicación</th>
+          <th>Fecha de Registro</th>
+          <th>Acciones</th> 
+        </tr>
+      </thead>
+      <tbody>
+        <% if (tires.length === 0) { %>
+          <tr><td colspan="10">No hay llantas registradas.</td></tr>
+        <% } else { %>
+          <% tires.forEach(tire => { %>
+            <tr>
+              <td><%= tire.brand %></td>
+              <td><%= tire.size %></td>
+              <td><%= tire.type %></td>
+              <td><%= tire.quantity %></td>
+              <td><%= tire.priceUnit.toFixed(2) %> USD</td>
+              <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
+              <td><%= tire.priceRetail.toFixed(2) %> USD</td>
+              <td><%= tire.location %></td>
+              <td><%= tire.createdAt.toLocaleDateString() %></td>
+              <td class="action-buttons">
+                <a href="/newtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
+                <form action="/newtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
+                  <button type="submit" class="btn-delete">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

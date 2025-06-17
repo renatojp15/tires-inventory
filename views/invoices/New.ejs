@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Factura</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Crear Factura</h1>
+    <form action="/invoices/create" method="POST">
+
+      <fieldset class="form-group">
+        <legend>Datos del Cliente</legend>
+        <label for="fullName">Nombre del Cliente:</label>
+        <input type="text" name="fullName" id="fullName" required>
+
+        <label for="idNumber">Cédula o ID del Cliente:</label>
+        <input type="text" name="idNumber" id="idNumber" required>
+
+        <label for="phone">Teléfono:</label>
+        <input type="text" name="phone" id="phone">
+
+        <label for="address">Dirección:</label>
+        <input type="text" name="address" id="address">
+      </fieldset>
+
+      <fieldset class="form-group">
+        <legend>Llantas Nuevas</legend>
+        <% newTires.forEach((tire, index) => { %>
+          <div class="tire-item">
+            <label>
+              <input type="checkbox" name="items[<%= index %>][selected]" value="true">
+              <%= tire.brand %> - <%= tire.size %> - $<%= tire.priceRetail %> (al detal)
+            </label>
+            <input type="hidden" name="items[<%= index %>][tireId]" value="<%= tire.id %>">
+            <input type="hidden" name="items[<%= index %>][tireType]" value="new">
+            <input type="number" name="items[<%= index %>][quantity]" min="1" placeholder="Cantidad">
+          </div>
+        <% }) %>
+      </fieldset>
+
+      <fieldset class="form-group">
+        <legend>Llantas Usadas</legend>
+        <% usedTires.forEach((tire, index) => {
+          const idx = newTires.length + index;
+        %>
+          <div class="tire-item">
+            <label>
+              <input type="checkbox" name="items[<%= idx %>][selected]" value="true">
+              <%= tire.brand %> - <%= tire.size %> - $<%= tire.priceRetail %> (al detal)
+            </label>
+            <input type="hidden" name="items[<%= idx %>][tireId]" value="<%= tire.id %>">
+            <input type="hidden" name="items[<%= idx %>][tireType]" value="used">
+            <input type="number" name="items[<%= idx %>][quantity]" min="1" placeholder="Cantidad">
+          </div>
+        <% }) %>
+      </fieldset>
+
+      <button type="submit" class="btn-submit">Generar Factura</button>
+    </form>
+  </div>
+</body>
+</html>
