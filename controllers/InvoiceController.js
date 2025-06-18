@@ -126,6 +126,22 @@ if (!invoice) {
         res.status(500).send('ERROR AL MOSTRAR LA FACTURA');
     }
   },
+  listInvoices: async (req, res) => {
+  try {
+    const invoices = await prisma.invoice.findMany({
+      orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+      include: {
+        customer: true,
+        items: true
+      }
+    });
+
+    res.render('invoices/InvoicesList', { invoices });
+  } catch (error) {
+    console.error('ERROR AL LISTAR LAS FACTURAS:', error);
+    res.status(500).send('ERROR AL LISTAR LAS FACTURAS');
+  }
+},
   exportInvoicePdf: async(req, res) => {
     const invoiceId = parseInt(req.params.id);
 

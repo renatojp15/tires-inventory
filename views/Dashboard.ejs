@@ -6,8 +6,12 @@
   <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
+
   <div class="dashboard-container">
-    <h1>Bienvenido, <%= user.fullName %> 👋</h1>
+    <div class="logo-container" style="flex: 1;">
+          <img src="/img/Logo_sonix_itd.png" alt="Logo de Sonix Itd" style="width: 150px; height: auto;">
+    </div>
+    <h1>Bienvenido, <%= user.fullName %></h1>
     <p class="username-info">Usuario: <strong><%= user.username %></strong> | Rol: <strong><%= user.role %></strong></p>
 
     <div class="buttons-grid">
@@ -20,6 +24,7 @@
       <a href="/usedtires/form" class="dashboard-btn">Registrar Llantas Usadas</a>
       <a href="/usedtires/list" class="dashboard-btn">Lista Llantas Usadas</a>
 
+      <a href="/users/register" class="dashboard-btn">Crear Usuario</a>
       <a href="/login/logout" class="dashboard-btn logout">Cerrar Sesión</a>
     </div>
   </div>

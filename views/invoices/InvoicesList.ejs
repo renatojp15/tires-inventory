@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Listado de Facturas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+      <a href="/invoices/new" class="btn">Crear Nueva Factura</a>
+      <a href="/login/dashboard" class="btn btn-secondary">Ir al Menú Principal</a>
+    </nav>
+  <div class="container">
+    <h1>Facturas Emitidas</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Total</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (invoices.length === 0) { %>
+          <tr><td colspan="5">No hay facturas registradas.</td></tr>
+        <% } else { %>
+          <% invoices.forEach(invoice => { %>
+            <tr>
+              <td><%= invoice.invoiceCode %></td>
+              <td><%= invoice.customer.fullName %></td>
+              <td><%= new Date(invoice.date).toLocaleDateString() %></td>
+              <td>$<%= invoice.totalAmount.toFixed(2) %></td>
+              <td>
+                <a href="/invoices/<%= invoice.id %>" class="btn">Ver</a>
+                <a href="/invoices/<%= invoice.id %>/pdf" class="btn btn-secondary">PDF</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
