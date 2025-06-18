@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const methodOverride = require('method-override');
 const session = require('express-session');
+const path = require('path');
 
 app.use(methodOverride('_method'));
 
@@ -19,7 +20,7 @@ app.set('views', './views');
 //Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuración de la sesión
 app.use(session({

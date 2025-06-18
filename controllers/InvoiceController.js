@@ -57,7 +57,10 @@ const invoiceController = {
         tire = await prisma.usedTire.findUnique({ where: { id: parseInt(tireId) } });
       }
 
-      if (!tire) continue;
+      // Si no se encuentra la llanta o no hay stock suficiente
+      if (!tire || tire.quantity < qty) {
+        return res.status(400).send(`No hay suficientes llantas disponibles para ${tire?.brand || 'ID ' + tireId}`);
+      }
 
       const unitPrice = tire.priceRetail;
       const subtotal = unitPrice * qty;
@@ -70,6 +73,19 @@ const invoiceController = {
         unitPrice,
         subtotal
       });
+
+      // 🔁 Descontar cantidad del inventario
+      if (tireType === 'new') {
+        await prisma.newTire.update({
+          where: { id: parseInt(tireId) },
+          data: { quantity: tire.quantity - qty }
+        });
+      } else if (tireType === 'used') {
+        await prisma.usedTire.update({
+          where: { id: parseInt(tireId) },
+          data: { quantity: tire.quantity - qty }
+        });
+      }
     }
 
     if (invoiceItemsData.length === 0) {
@@ -119,7 +135,11 @@ const invoice = await prisma.invoice.findUnique({
 if (!invoice) {
   return res.status(404).send('Factura no encontrada');
 }
-        res.render('invoices/Show', { invoice });
+        res.render('invoices/show', {
+          invoice,
+          isPdf: false, // 👈 Esto es lo que faltaba
+          host: req.headers.host, // 👈 Por si acaso necesitas la URL absoluta del logo
+        });
         }
     catch(error){
         console.error('ERROR AL MOSTRAR LA FACTURA:', error);
@@ -162,11 +182,16 @@ if (!invoice) {
     const ejs = require('ejs');
     const fs = require('fs');
     const templatePath = path.join(__dirname, '../views/invoices/show.ejs'); // Ajusta el path si está en otra carpeta
-    const html = await ejs.renderFile(templatePath, { invoice });
+    const html = await ejs.renderFile(templatePath, {
+      invoice,
+      isPdf: true,
+      host: req.headers.host // Pasamos el host para construir URLs absolutas
+    });
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
+    await page.emulateMediaType('print');
 
     const pdfBuffer = await page.pdf({
       format: 'A4',

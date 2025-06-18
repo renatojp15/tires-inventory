@@ -233,6 +233,10 @@ fieldset {
     background: white;
   }
 
+  .no-print {
+    display: none !important;
+  }
+
   .btn,
   .btn-secondary {
     display: none;
@@ -288,4 +292,18 @@ fieldset {
 
 .btn-nav:hover {
   background-color: #0056b3;
+}
+
+/* Agrupación y espaciado de botones de la factura */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.btn-group .btn {
+  flex: 1 1 auto;
+  max-width: 200px;
 }

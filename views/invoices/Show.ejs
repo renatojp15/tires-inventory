@@ -15,7 +15,7 @@
   <div class="invoice-container">
     <header class="invoice-header">
         <div class="logo-container" style="flex: 1;">
-          <img src="/img/Logo_sonix_itd.png" alt="Logo de Sonix Itd" style="width: 150px; height: auto;">
+          <img src="<%= isPdf ? `http://${host}/img/LOGO-SONIX-LTD.png` : '/img/LOGO-SONIX-LTD.png' %>" alt="Logo de SONIX LTD" style="width: 150px; height: auto;">
         </div>
 
         <h1>FACTURA</h1>
@@ -25,17 +25,17 @@
         </div>
     </header>
 
-        <hr>
+    <hr>
 
-        <h3>Datos del Cliente</h3>
-          <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
-          <p><strong>Cédula / ID:</strong> <%= invoice.customer.idNumber %></p>
-          <% if (invoice.customer.phone) { %>
-            <p><strong>Teléfono:</strong> <%= invoice.customer.phone %></p>
-          <% } %>
-          <% if (invoice.customer.address) { %>
-            <p><strong>Dirección:</strong> <%= invoice.customer.address %></p>
-          <% } %>
+    <h3>Datos del Cliente</h3>
+      <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
+      <p><strong>Cédula / ID:</strong> <%= invoice.customer.idNumber %></p>
+      <% if (invoice.customer.phone) { %>
+        <p><strong>Teléfono:</strong> <%= invoice.customer.phone %></p>
+      <% } %>
+      <% if (invoice.customer.address) { %>
+        <p><strong>Dirección:</strong> <%= invoice.customer.address %></p>
+      <% } %>
 
     <main>
       <table class="invoice-table">
@@ -75,9 +75,10 @@
       <p>__________________________</p>
       <p>Firma</p>
 
-      <div class="buttons">
-        <a href="/invoices/new" class="btn">Nueva Factura</a>
-        <button onclick="exportToPDF()" class="btn btn-secondary">Exportar a PDF para Imprimir</button>
+      <div class="buttons btn-group <%= isPdf ? 'no-print' : '' %>">
+        <a href="/invoices/new" class="btn btn-primary">🧾 Nueva Factura</a>
+        <a href="/invoices/pdf/<%= invoice.id %>" class="btn btn-secondary" target="_blank">📄 Descargar PDF</a>
+        <button onclick="exportToPDF()" class="btn btn-secondary">🖨️ Imprimir o Guardar PDF</button>
       </div>
     </footer>
   </div>
