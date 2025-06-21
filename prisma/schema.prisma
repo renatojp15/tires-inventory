@@ -14,7 +14,8 @@ model NewTire {
   id             Int            @id @default(autoincrement())
   brand          String
   size           String
-  type           String
+  type           String         // 🚗 Tipo de vehículo: Auto, Moto, Tractor
+  weight         Float          // ⚖️ Peso por llanta
   condition      String         @default("Nueva")
   quantity       Int
   priceUnit      Float
@@ -30,7 +31,8 @@ model UsedTire {
   id             Int            @id @default(autoincrement())
   brand          String
   size           String
-  type           String
+  type           String         // 🚗 Tipo de vehículo: Auto, Moto, Tractor
+  weight         Float          // ⚖️ Peso por llanta
   condition      String         @default("Usada")
   quantity       Int
   priceUnit      Float
@@ -45,7 +47,7 @@ model UsedTire {
 model Customer {
   id        Int      @id @default(autoincrement())
   fullName  String
-  idNumber  String   @unique
+  idNumber  String?  // 🔁 Ahora es opcional (puede quedar vacío)
   phone     String?
   address   String?
   createdAt DateTime @default(now())
@@ -65,16 +67,17 @@ model User {
 }
 
 model Invoice {
-  id          Int           @id @default(autoincrement())
-  invoiceCode String        @unique
-  date        DateTime      @default(now())
-  totalAmount Float
-  customerId  Int
-  userId      Int?
+  id           Int           @id @default(autoincrement())
+  invoiceCode  String        @unique
+  date         DateTime      @default(now())
+  totalAmount  Float
+  totalWeight  Float         @default(0) // ✅ Nuevo campo agregado
+  customerId   Int
+  userId       Int?
 
-  customer    Customer      @relation(fields: [customerId], references: [id])
-  user        User?         @relation(fields: [userId], references: [id])
-  items       InvoiceItem[]
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
+  items        InvoiceItem[]
 }
 
 model InvoiceItem {

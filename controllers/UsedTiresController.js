@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 const usedTiresController = {
     UsedTiresForm: (req, res) => {
         try{
-            res.render('UsedTiresForm')
+            res.render('usedTires/UsedTiresForm')
         }
         catch(error){
             console.error('ERROR AL CARGAR EL FORMULARIO: ', error);
@@ -13,13 +13,14 @@ const usedTiresController = {
     },
     createUsedTires: async(req, res) => {
         try{
-            const {brand, size, type, quantity, priceUnit, priceWholesale, priceRetail, location} = req.body;
+            const {brand, size, type, weight, quantity, priceUnit, priceWholesale, priceRetail, location} = req.body;
 
         await prisma.usedTire.create({
             data: {
             brand,
             size,
             type,
+            weight: parseFloat(weight),
             quantity: parseInt(quantity),
             priceUnit: parseFloat(priceUnit),
             priceWholesale: parseFloat(priceWholesale),
@@ -41,7 +42,7 @@ const usedTiresController = {
                 createdAt: 'desc'
             }
         });
-            res.render('UsedTiresList', {tires})
+            res.render('usedTires/UsedTiresList', {tires})
         }
         catch(error){
             console.error('ERROR AL OBTENER LAS LLANTAS NUEVAS: ', error);
@@ -54,7 +55,7 @@ const usedTiresController = {
             const tire = await prisma.usedTire.findUnique({
                 where: { id: parseInt(id) },
             });
-            res.render('EditUsedTiresForm', {tire});
+            res.render('usedTires/EditUsedTiresForm', {tire});
         }
         catch(error){
             console.error('ERROR AL CARGAR EL FORMULARIO DE EDICIÓN:', error);
@@ -63,7 +64,7 @@ const usedTiresController = {
     },
     updateUsedTires: async (req, res) => {
         const { id } = req.params;
-        const { brand, size, type, quantity, priceUnit, priceWholesale, priceRetail, location } = req.body;
+        const { brand, size, type, weight, quantity, priceUnit, priceWholesale, priceRetail, location } = req.body;
         try {
             await prisma.usedTire.update({
                 where: { id: parseInt(id) },
@@ -71,6 +72,7 @@ const usedTiresController = {
                     brand,
                     size,
                     type,
+                    weight: parseFloat(weight),
                     quantity: parseInt(quantity),
                     priceUnit: parseFloat(priceUnit),
                     priceWholesale: parseFloat(priceWholesale),

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Llantas Usadas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/usedtires/list" class="btn-nav">← Ir a la Lista de Llantas Usadas</a>
+  </nav>
+
+  <div class="form-container">
+    <h1>Registro de Llantas USADAS</h1>
+    <form action="/usedtires/edit/<%=tire.id%>" method="POST">
+
+      <div class="form-group">
+        <label for="brand">Marca</label>
+        <input type="text" id="brand" name="brand" value="<%=tire.brand%>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="size">Referencia</label>
+        <input type="text" id="size" name="size" value="<%=tire.size%>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="type">Tipo de Vehículo</label>
+        <input type="text" id="type" name="type" value="<%=tire.type%>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="weight">Peso (kg)</label>
+        <input type="number" step="0.01" id="weight" name="weight" value="<%=tire.weight%>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Cantidad</label>
+        <input type="number" id="quantity" name="quantity" value="<%=tire.quantity%>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Ubicación</label>
+        <input type="text" id="location" name="location" value="<%=tire.location%>">
+      </div>
+
+      <div class="form-group">
+        <label for="priceUnit">Precio Unitario</label>
+        <input type="number" step="0.01" id="priceUnit" name="priceUnit" value="<%=tire.priceUnit%>">
+      </div>
+
+      <div class="form-group">
+        <label for="priceRetail">Precio al Detal</label>
+        <input type="number" step="0.01" id="priceRetail" name="priceRetail" value="<%=tire.priceRetail%>">
+      </div>
+
+      <div class="form-group">
+        <label for="priceWholesale">Precio al Por Mayor</label>
+        <input type="number" step="0.01" id="priceWholesale" name="priceWholesale" value="<%=tire.priceWholesale%>">
+      </div>
+
+      <input type="hidden" name="condition" value="Usada" />
+
+      <button type="submit">ACTUALIZAR LLANTA</button>
+    </form>
+  </div>
+</body>
+</html>

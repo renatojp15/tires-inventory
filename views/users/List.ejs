@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Usuarios</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+      <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
+    </nav>
+  <div class="container">
+    <h1>📋 Lista de Usuarios</h1>
+
+    <% if (users.length === 0) { %>
+      <p>No hay usuarios registrados.</p>
+    <% } else { %>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Nombre completo</th>
+            <th>Rol</th>
+            <th>Creado el</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(user => { %>
+            <tr>
+              <td><%= user.id %></td>
+              <td><%= user.username %></td>
+              <td><%= user.fullName %></td>
+              <td><%= user.role %></td>
+              <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+              <td>
+                <a href="/users/<%= user.id %>/edit" class="btn btn-edit">✏️ Editar</a>
+                <form action="/users/delete/<%= user.id %>" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                  <button type="submit" class="btn btn-delete">🗑️ Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+
+    <a href="/users/register" class="btn btn-create">➕ Crear nuevo usuario</a>
+  </div>
+</body>
+</html>

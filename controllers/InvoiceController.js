@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const puppeteer = require('puppeteer');
 const path = require('path');
+const ExcelJS = require('exceljs');
 
 const invoiceController = {
     showInvoiceForm: async (req, res) => {
@@ -24,22 +25,30 @@ const invoiceController = {
       return res.status(400).send('Debe seleccionar al menos una llanta');
     }
 
-    // 1. Buscar o crear cliente por cédula (idNumber)
-    let customer = await prisma.customer.findUnique({ where: { idNumber } });
+    // 🔍 Buscar cliente por idNumber (si viene), sino por nombre
+    let customer;
 
+    if (idNumber && idNumber.trim() !== '') {
+      customer = await prisma.customer.findFirst({ where: { idNumber } });
+    } else {
+      customer = await prisma.customer.findFirst({ where: { fullName } });
+    }
+
+    // Si no existe, lo creamos
     if (!customer) {
       customer = await prisma.customer.create({
         data: {
           fullName,
-          idNumber,
+          idNumber: idNumber?.trim() || null,
           phone: phone || null,
           address: address || null
         }
       });
     }
 
-    // 2. Preparar ítems y calcular total
+    // 2. Calcular total, peso y preparar ítems
     let totalAmount = 0;
+    let totalWeight = 0;
     const invoiceItemsData = [];
 
     for (const item of items) {
@@ -50,21 +59,22 @@ const invoiceController = {
       if (isNaN(qty) || qty <= 0) continue;
 
       let tire;
-
       if (tireType === 'new') {
         tire = await prisma.newTire.findUnique({ where: { id: parseInt(tireId) } });
       } else if (tireType === 'used') {
         tire = await prisma.usedTire.findUnique({ where: { id: parseInt(tireId) } });
       }
 
-      // Si no se encuentra la llanta o no hay stock suficiente
       if (!tire || tire.quantity < qty) {
         return res.status(400).send(`No hay suficientes llantas disponibles para ${tire?.brand || 'ID ' + tireId}`);
       }
 
       const unitPrice = tire.priceRetail;
       const subtotal = unitPrice * qty;
+      const weight = tire.weight * qty;
+
       totalAmount += subtotal;
+      totalWeight += weight;
 
       invoiceItemsData.push({
         tireType,
@@ -74,17 +84,12 @@ const invoiceController = {
         subtotal
       });
 
-      // 🔁 Descontar cantidad del inventario
+      // Actualizar inventario
+      const tireUpdate = { quantity: tire.quantity - qty };
       if (tireType === 'new') {
-        await prisma.newTire.update({
-          where: { id: parseInt(tireId) },
-          data: { quantity: tire.quantity - qty }
-        });
-      } else if (tireType === 'used') {
-        await prisma.usedTire.update({
-          where: { id: parseInt(tireId) },
-          data: { quantity: tire.quantity - qty }
-        });
+        await prisma.newTire.update({ where: { id: parseInt(tireId) }, data: tireUpdate });
+      } else {
+        await prisma.usedTire.update({ where: { id: parseInt(tireId) }, data: tireUpdate });
       }
     }
 
@@ -92,18 +97,21 @@ const invoiceController = {
       return res.status(400).send('No se seleccionó ninguna llanta válida');
     }
 
-    // 3. Crear factura y asociar ítems
-    const invoice = await prisma.invoice.create({
-      data: {
-        invoiceCode: `INV-${Date.now()}`,
-        totalAmount,
-        customer: { connect: { id: customer.id } },
-        // user: { connect: { id: 1 } }, // Placeholder temporal
-        items: {
-          create: invoiceItemsData
-        }
-      }
-    });
+    // 3. Crear factura
+    const invoiceData = {
+      invoiceCode: `INV-${Date.now()}`,
+      totalAmount,
+      totalWeight,
+      customer: { connect: { id: customer.id } },
+      items: { create: invoiceItemsData }
+    };
+
+    const loggedUser = req.session?.user;
+    if (loggedUser?.id) {
+      invoiceData.user = { connect: { id: loggedUser.id } };
+    }
+
+    const invoice = await prisma.invoice.create({ data: invoiceData });
 
     res.redirect(`/invoices/${invoice.id}`);
   } catch (error) {
@@ -139,6 +147,7 @@ if (!invoice) {
           invoice,
           isPdf: false, // 👈 Esto es lo que faltaba
           host: req.headers.host, // 👈 Por si acaso necesitas la URL absoluta del logo
+          user: req.session.user, // 👈 agregar esto
         });
         }
     catch(error){
@@ -210,7 +219,143 @@ if (!invoice) {
     console.error('ERROR GENERANDO PDF:', error);
     res.status(500).send('ERROR GENERANDO PDF');
   }
+  },
+  deleteInvoice: async (req, res) => {
+  const invoiceId = parseInt(req.params.id);
+
+  try {
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: {
+        items: true
+      }
+    });
+
+    if (!invoice) {
+      return res.status(404).send('Factura no encontrada');
+    }
+
+    // Devolver cantidades al inventario
+    for (const item of invoice.items) {
+      const qty = item.quantity;
+
+      if (item.tireType === 'new') {
+        await prisma.newTire.update({
+          where: { id: item.tireId },
+          data: {
+            quantity: { increment: qty }
+          }
+        });
+      } else if (item.tireType === 'used') {
+        await prisma.usedTire.update({
+          where: { id: item.tireId },
+          data: {
+            quantity: { increment: qty }
+          }
+        });
+      }
+    }
+
+    // Borrar los items relacionados
+    await prisma.invoiceItem.deleteMany({
+      where: { invoiceId }
+    });
+
+    // Borrar la factura
+    await prisma.invoice.delete({
+      where: { id: invoiceId }
+    });
+
+    res.redirect('/invoices/list');
+  } catch (error) {
+    console.error('ERROR AL ELIMINAR FACTURA:', error);
+    res.status(500).send('Error al eliminar la factura');
   }
+},
+exportInvoiceToExcel: async (req, res) => {
+  try {
+    const invoiceId = parseInt(req.params.id);
+
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: {
+        customer: true,
+        items: {
+          include: {
+            newTire: true,
+            usedTire: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    if (!invoice) {
+      return res.status(404).send('Factura no encontrada');
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Factura');
+
+    // Encabezado
+    sheet.addRow(['FACTURA']).font = { size: 16, bold: true };
+    sheet.addRow([]);
+
+    // Datos generales
+    sheet.addRow(['Código de Factura', invoice.invoiceCode]);
+    sheet.addRow(['Fecha', invoice.date.toLocaleDateString()]);
+    sheet.addRow(['Vendedor', invoice.user?.fullName || '']);
+    sheet.addRow(['Cliente', invoice.customer.fullName]);
+    sheet.addRow(['Cédula', invoice.customer.idNumber || '']);
+    sheet.addRow(['Teléfono', invoice.customer.phone || '']);
+    sheet.addRow(['Dirección', invoice.customer.address || '']);
+    sheet.addRow([]);
+
+    // Encabezado de la tabla
+    sheet.addRow([
+      'Condición',
+      'Marca',
+      'Referencia',
+      'Cantidad',
+      'Peso (kg)',
+      'Precio Detal',
+      'Subtotal',
+    ]).font = { bold: true };
+
+    // Cuerpo de la tabla
+    invoice.items.forEach((item) => {
+      const tire = item.tireType === 'new' ? item.newTire : item.usedTire;
+      const peso = tire.weight;
+      const subtotal = item.quantity * item.unitPrice;
+
+      sheet.addRow([
+        tire.condition,
+        tire.brand,
+        tire.size,
+        item.quantity,
+        peso,
+        item.unitPrice,
+        subtotal,
+      ]);
+    });
+
+    // Totales
+    sheet.addRow([]);
+    sheet.addRow(['Total a pagar', invoice.totalAmount]);
+    sheet.addRow(['Peso total', invoice.totalWeight]);
+
+    // Enviar archivo al navegador
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=factura-${invoice.invoiceCode}.xlsx`);
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (error) {
+    console.error('ERROR AL EXPORTAR EXCEL:', error);
+    res.status(500).send('Error al exportar factura a Excel');
+  }
+},
 };
 
 module.exports = invoiceController;

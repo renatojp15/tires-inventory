@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE "Invoice" ADD COLUMN     "totalWeight" DOUBLE PRECISION NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "NewTire" ADD COLUMN     "vehicleType" TEXT NOT NULL DEFAULT 'Desconocido',
+ADD COLUMN     "weight" DOUBLE PRECISION NOT NULL DEFAULT 0.0;
+
+-- AlterTable
+ALTER TABLE "UsedTire" ADD COLUMN     "vehicleType" TEXT NOT NULL DEFAULT 'Desconocido',
+ADD COLUMN     "weight" DOUBLE PRECISION NOT NULL DEFAULT 0.0;

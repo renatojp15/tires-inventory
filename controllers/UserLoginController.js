@@ -6,7 +6,7 @@ const userLogin = {
   // Muestra el formulario de login
   loginForm: (req, res) => {
     try {
-      res.render('forms/UserLoginForm');
+      res.render('login/UserLoginForm');
     } catch (error) {
       console.error('ERROR AL CARGAR EL FORMULARIO DE LOGIN:', error);
       res.status(500).send('ERROR AL CARGAR EL FORMULARIO DE LOGIN');

@@ -8,8 +8,9 @@
 <body>
     <nav class="navbar">
       <a href="/invoices/new" class="btn">Crear Nueva Factura</a>
-      <a href="/login/dashboard" class="btn btn-secondary">Ir al Menú Principal</a>
+      <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
     </nav>
+
   <div class="container">
     <h1>Facturas Emitidas</h1>
 
@@ -34,7 +35,7 @@
               <td><%= new Date(invoice.date).toLocaleDateString() %></td>
               <td>$<%= invoice.totalAmount.toFixed(2) %></td>
               <td>
-                <a href="/invoices/<%= invoice.id %>" class="btn">Ver</a>
+                <a href="/invoices/<%= invoice.id %>" class="btn btn-create">Ver</a>
               </td>
             </tr>
           <% }) %>

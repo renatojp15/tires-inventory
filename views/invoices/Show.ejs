@@ -12,53 +12,69 @@
 </head>
 
 <body>
+  <nav class="navbar no-print">
+    <a href="/invoices/list" class="btn-nav">← Ir a la Lista de Facturas</a>
+  </nav>
   <div class="invoice-container">
     <header class="invoice-header">
-        <div class="logo-container" style="flex: 1;">
-          <img src="<%= isPdf ? `http://${host}/img/LOGO-SONIX-LTD.png` : '/img/LOGO-SONIX-LTD.png' %>" alt="Logo de SONIX LTD" style="width: 150px; height: auto;">
-        </div>
+  <div class="logo-container" style="flex: 1;">
+    <img src="<%= isPdf ? `http://${host}/img/LOGO-SONIX-LTD.png` : '/img/LOGO-SONIX-LTD.png' %>" alt="Logo de SONIX LTD" style="width: 150px; height: auto;">
+  </div>
 
-        <h1>FACTURA</h1>
-        <div class="invoice-info">
-          <p><strong>Código:</strong> <%= invoice.invoiceCode %></p>
-          <p><strong>Fecha:</strong> <%= new Date(invoice.date).toLocaleDateString() %></p>
-        </div>
-    </header>
+  <div>
+    <h1>FACTURA</h1>
+    <p><strong>Empresa:</strong> SONIX LTD</p>
+    <p><strong>Dirección:</strong> LOTE NO 1 DE LA MANZANA (26-A), AVENIDA SAN ELADIO Y CALLE 17 DE LA ZONA LIBRE DE COLÓN, PANAMÁ</p>
+    <p><strong>Teléfono:</strong> 58 424-2428424</p>
+    <p><strong>Código:</strong> <%= invoice.invoiceCode %></p>
+    <p><strong>Fecha:</strong> <%= new Date(invoice.date).toLocaleDateString() %></p>
+    <p><strong>Vendedor/a:</strong> <%= user.fullName %></p>
+  </div>
+</header>
 
     <hr>
 
     <h3>Datos del Cliente</h3>
-      <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
+    <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
+    <% if (invoice.customer.idNumber) { %>
       <p><strong>Cédula / ID:</strong> <%= invoice.customer.idNumber %></p>
-      <% if (invoice.customer.phone) { %>
-        <p><strong>Teléfono:</strong> <%= invoice.customer.phone %></p>
-      <% } %>
-      <% if (invoice.customer.address) { %>
-        <p><strong>Dirección:</strong> <%= invoice.customer.address %></p>
-      <% } %>
+    <% } %>
+    <% if (invoice.customer.phone) { %>
+      <p><strong>Teléfono:</strong> <%= invoice.customer.phone %></p>
+    <% } %>
+    <% if (invoice.customer.address) { %>
+      <p><strong>Dirección:</strong> <%= invoice.customer.address %></p>
+    <% } %>
 
     <main>
       <table class="invoice-table">
         <thead>
           <tr>
-            <th>Tipo</th>
+            <th>Condición</th>
             <th>Marca</th>
-            <th>Tamaño</th>
+            <th>Referencia</th>
             <th>Cantidad</th>
+            <th>Peso (kg)</th>
             <th>Precio Detal</th>
             <th>Subtotal</th>
           </tr>
         </thead>
         <tbody>
-          <% invoice.items.forEach(item => {
-            const tire = item.tireType === 'new' ? item.newTire : item.usedTire;
-            const price = tire.priceRetail;
+          <% 
+            let totalWeight = 0;
+            invoice.items.forEach(item => {
+              const tire = item.tireType === 'new' ? item.newTire : item.usedTire;
+              const price = tire.priceRetail;
+              const peso = tire.weight;
+              const pesoTotal = peso * item.quantity;
+              totalWeight += pesoTotal;
           %>
             <tr>
-              <td><%= item.tireType === 'new' ? 'Nueva' : 'Usada' %></td>
+              <td><%= tire.condition %></td>
               <td><%= tire.brand %></td>
               <td><%= tire.size %></td>
               <td><%= item.quantity %></td>
+              <td><%= peso.toFixed(2) %></td>
               <td>$<%= price.toFixed(2) %></td>
               <td>$<%= (item.quantity * price).toFixed(2) %></td>
             </tr>
@@ -67,7 +83,8 @@
       </table>
 
       <div class="invoice-total">
-        <strong>Total a pagar:</strong> $<%= invoice.totalAmount.toFixed(2) %>
+        <p><strong>Peso total:</strong> <%= totalWeight.toFixed(2) %> kg</p>
+        <p><strong>Total a pagar:</strong> $<%= invoice.totalAmount.toFixed(2) %></p>
       </div>
     </main>
 
@@ -75,11 +92,16 @@
       <p>__________________________</p>
       <p>Firma</p>
 
-      <div class="buttons btn-group <%= isPdf ? 'no-print' : '' %>">
-        <a href="/invoices/new" class="btn btn-primary">🧾 Nueva Factura</a>
-        <a href="/invoices/pdf/<%= invoice.id %>" class="btn btn-secondary" target="_blank">📄 Descargar PDF</a>
+      <% if (!isPdf) { %>
+      <div class="buttons btn-group no-print" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px;">
+        <a href="/invoices/new" class="btn btn-create">🧾 Nueva Factura</a>
         <button onclick="exportToPDF()" class="btn btn-secondary">🖨️ Imprimir o Guardar PDF</button>
+        <a href="/invoices/<%= invoice.id %>/export-excel" class="btn btn-excel">📥 Exportar a Excel</a>
+        <form action="/invoices/<%= invoice.id %>/delete" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta factura? Esta acción no se puede deshacer.')" style="display: inline;">
+          <button type="submit" class="btn btn-delete">🗑️ Eliminar Factura</button>
+        </form>
       </div>
+      <% } %>
     </footer>
   </div>
 </body>

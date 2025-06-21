@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const usedTiresController = require('../controllers/UsedTiresController');
 const isAuthenticated = require('../middlewares/authMiddleware');
+const isAdmin = require('../middlewares/isAdmin');
 
 router.get('/form', isAuthenticated, usedTiresController.UsedTiresForm);
 router.post('/create', isAuthenticated, usedTiresController.createUsedTires);
