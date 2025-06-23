@@ -83,7 +83,6 @@ const invoiceController = {
         // ✅ Relación explícita para evitar conflicto de claves foráneas
         invoiceItemsData.push({
           tireType,
-          tireId: tireIdInt,
           quantity: qty,
           unitPrice,
           subtotal,
