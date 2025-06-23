@@ -36,7 +36,7 @@
               <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
               <td>
                 <a href="/users/<%= user.id %>/edit" class="btn btn-edit">✏️ Editar</a>
-                <form action="/users/delete/<%= user.id %>" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                <form action="/users/<%= user.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
                   <button type="submit" class="btn btn-delete">🗑️ Eliminar</button>
                 </form>
               </td>

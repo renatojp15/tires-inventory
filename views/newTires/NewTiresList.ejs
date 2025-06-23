@@ -8,55 +8,71 @@
 </head>
 <body>
   <nav class="navbar">
-      <a href="/newtires/form" class="btn">Registrar Nueva Llanta</a>
-      <a href="/usedtires/list" class="btn btn-secondary">Ver Llantas Usadas</a>
-      <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
-    </nav>
+    <a href="/newtires/form" class="btn">Registrar Nueva Llanta</a>
+    <a href="/usedtires/list" class="btn btn-secondary">Ver Llantas Usadas</a>
+    <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
+  </nav>
+
   <div class="container">
     <h1>Registros de Llantas NUEVAS</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Marca</th>
-          <th>Referencia</th>
-          <th>Tipo de Vehículo</th>
-          <th>Peso</th>
-          <th>Cantidad</th>
-          <th>Precio Unitario</th>
-          <th>Precio Mayorista</th>
-          <th>Precio Detal</th>
-          <th>Ubicación</th>
-          <th>Fecha de Registro</th>
-          <th>Acciones</th> 
-        </tr>
-      </thead>
-      <tbody>
-        <% if (tires.length === 0) { %>
-          <tr><td colspan="10">No hay llantas registradas.</td></tr>
-        <% } else { %>
-          <% tires.forEach(tire => { %>
+
+    <!-- 🕵️ Formulario de búsqueda -->
+    <form method="GET" action="/newtires/list" class="search-bar">
+      <input
+        type="text"
+        name="search"
+        placeholder="Buscar por marca, referencia o tipo..."
+        value="<%= typeof search !== 'undefined' ? search : '' %>"
+      />
+      <button type="submit">Buscar</button>
+    </form>
+
+    <% if (Object.keys(tiresGrouped).length === 0) { %>
+      <p>No hay llantas registradas.</p>
+    <% } else { %>
+      <% for (let fecha in tiresGrouped) { %>
+        <h3 style="margin-top: 30px; color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
+          📅 <%= fecha %>
+        </h3>
+        <table>
+          <thead>
             <tr>
-              <td><%= tire.brand %></td>
-              <td><%= tire.size %></td>
-              <td><%= tire.type %></td>
-              <td><%= tire.weight %></td>
-              <td><%= tire.quantity %></td>
-              <td><%= tire.priceUnit.toFixed(2) %> USD</td>
-              <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
-              <td><%= tire.priceRetail.toFixed(2) %> USD</td>
-              <td><%= tire.location %></td>
-              <td><%= tire.createdAt.toLocaleDateString() %></td>
-              <td class="action-buttons">
-                <a href="/newtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
-                <form action="/newtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
-                  <button type="submit" class="btn-delete">Eliminar</button>
-                </form>
-              </td>
+              <th>Marca</th>
+              <th>Referencia</th>
+              <th>Tipo de Vehículo</th>
+              <th>Peso</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Precio Mayorista</th>
+              <th>Precio Detal</th>
+              <th>Ubicación</th>
+              <th>Acciones</th>
             </tr>
-          <% }); %>
-        <% } %>
-      </tbody>
-    </table>
+          </thead>
+          <tbody>
+            <% tiresGrouped[fecha].forEach(tire => { %>
+              <tr>
+                <td><%= tire.brand %></td>
+                <td><%= tire.size %></td>
+                <td><%= tire.type %></td>
+                <td><%= tire.weight %></td>
+                <td><%= tire.quantity %></td>
+                <td><%= tire.priceUnit.toFixed(2) %> USD</td>
+                <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
+                <td><%= tire.priceRetail.toFixed(2) %> USD</td>
+                <td><%= tire.location %></td>
+                <td class="action-buttons">
+                  <a href="/newtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
+                  <form action="/newtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
+                    <button type="submit" class="btn-delete">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    <% } %>
   </div>
 </body>
 </html>

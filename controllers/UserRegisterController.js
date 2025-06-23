@@ -15,8 +15,12 @@ const userRegister = {
   },
 
   // Crear usuario
-  createUser: async (req, res) => {
-  const { username, fullName, role, password, confirmPassword } = req.body;
+  // Crear usuario
+createUser: async (req, res) => {
+  let { username, fullName, role, password, confirmPassword } = req.body;
+
+  // Normalizar el username a minúsculas
+  username = username.trim().toLowerCase();
 
   // Validar contraseñas iguales
   if (password !== confirmPassword) {
@@ -29,9 +33,23 @@ const userRegister = {
   }
 
   try {
+    // Verificar si ya existe un usuario con ese username (sin importar mayúsculas)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        username: {
+          equals: username,
+          mode: 'insensitive',
+        }
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).send('❌ Ese nombre de usuario ya está registrado');
+    }
+
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         username,
         fullName,
@@ -74,29 +92,55 @@ const userRegister = {
   },
 
   // Actualizar usuario
-  updateUser: async (req, res) => {
-    const userId = parseInt(req.params.id);
-    const { username, fullName, role, password } = req.body;
+  // Actualizar usuario
+updateUser: async (req, res) => {
+  const userId = parseInt(req.params.id);
+  let { username, fullName, role, password, confirmPassword } = req.body;
 
-    try {
-      const updatedData = { username, fullName, role };
+  username = username.trim().toLowerCase();
 
-      if (password && password.trim() !== '') {
-        updatedData.password = await bcrypt.hash(password, saltRounds);
+  try {
+    // Verificar si otro usuario ya tiene ese username (insensible a mayúsculas)
+    const userWithSameUsername = await prisma.user.findFirst({
+      where: {
+        username: {
+          equals: username,
+          mode: 'insensitive'
+        },
+        NOT: { id: userId }
+      }
+    });
+
+    if (userWithSameUsername) {
+      return res.status(400).send('❌ El nombre de usuario ya está en uso por otro usuario');
+    }
+
+    const updatedData = { username, fullName, role };
+
+    // Si se quiere actualizar la contraseña
+    if (password && password.trim() !== '') {
+      if (password !== confirmPassword) {
+        return res.status(400).send('❌ Las contraseñas no coinciden');
       }
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: updatedData,
-      });
+      if (password.length < 6) {
+        return res.status(400).send('❌ La contraseña debe tener al menos 6 caracteres');
+      }
 
-      res.redirect('/users/list');
-    } catch (error) {
-      console.error('ERROR AL ACTUALIZAR USUARIO:', error);
-      res.status(500).send('ERROR AL ACTUALIZAR USUARIO');
+      updatedData.password = await bcrypt.hash(password, saltRounds);
     }
-  },
 
+    await prisma.user.update({
+      where: { id: userId },
+      data: updatedData,
+    });
+
+    res.redirect('/users/list');
+  } catch (error) {
+    console.error('ERROR AL ACTUALIZAR USUARIO:', error);
+    res.status(500).send('ERROR AL ACTUALIZAR USUARIO');
+  }
+},
   // Eliminar usuario
   deleteUser: async (req, res) => {
     const userId = parseInt(req.params.id);

@@ -49,8 +49,8 @@ input[type="password"]:focus {
   outline: none;
 }
 
-button {
-  width: 100%;
+button,
+input[type="submit"] {
   padding: 12px;
   background-color: #2ecc71;
   color: white;
@@ -61,8 +61,10 @@ button {
   transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #27ae60;
+/* Solo aplicar width: 100% a botones dentro de formularios específicos */
+.form-container button,
+.invoice-container button {
+  width: 100%;
 }
 
 /* ----------------- Tabla de registros de llantas ------------------ */
@@ -344,4 +346,36 @@ fieldset {
 
 .navbar .btn-menu:hover {
   background-color: #e68900 !important;
+}
+
+/* -------- Estilos para barra de búsqueda -------- */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input[type="text"] {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  height: 42px;
+}
+
+.search-bar button {
+  width: auto;
+  padding: 10px 16px;
+  font-size: 16px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 42px;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
 }

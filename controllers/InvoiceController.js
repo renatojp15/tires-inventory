@@ -25,28 +25,31 @@ const invoiceController = {
       return res.status(400).send('Debe seleccionar al menos una llanta');
     }
 
-    // 🔍 Buscar cliente por idNumber (si viene), sino por nombre
+    // 🔍 Buscar o crear cliente
     let customer;
+    try {
+      const searchCondition = idNumber?.trim()
+        ? { idNumber: idNumber.trim() }
+        : { fullName: fullName.toLowerCase() };
 
-    if (idNumber && idNumber.trim() !== '') {
-      customer = await prisma.customer.findFirst({ where: { idNumber } });
-    } else {
-      customer = await prisma.customer.findFirst({ where: { fullName } });
+      customer = await prisma.customer.findFirst({ where: searchCondition });
+
+      if (!customer) {
+        customer = await prisma.customer.create({
+          data: {
+            fullName: fullName.toLowerCase(),
+            idNumber: idNumber?.trim() || null,
+            phone: phone || null,
+            address: address || null
+          }
+        });
+      }
+    } catch (error) {
+      console.error('❌ ERROR al buscar/crear cliente:', error);
+      return res.status(500).send('Error al procesar cliente');
     }
 
-    // Si no existe, lo creamos
-    if (!customer) {
-      customer = await prisma.customer.create({
-        data: {
-          fullName,
-          idNumber: idNumber?.trim() || null,
-          phone: phone || null,
-          address: address || null
-        }
-      });
-    }
-
-    // 2. Calcular total, peso y preparar ítems
+    // 🧮 Calcular totales y armar ítems
     let totalAmount = 0;
     let totalWeight = 0;
     const invoiceItemsData = [];
@@ -59,66 +62,83 @@ const invoiceController = {
       if (isNaN(qty) || qty <= 0) continue;
 
       let tire;
-      if (tireType === 'new') {
-        tire = await prisma.newTire.findUnique({ where: { id: parseInt(tireId) } });
-      } else if (tireType === 'used') {
-        tire = await prisma.usedTire.findUnique({ where: { id: parseInt(tireId) } });
-      }
+      const tireIdInt = parseInt(tireId);
 
-      if (!tire || tire.quantity < qty) {
-        return res.status(400).send(`No hay suficientes llantas disponibles para ${tire?.brand || 'ID ' + tireId}`);
-      }
+      try {
+        tire = await (tireType === 'new'
+          ? prisma.newTire.findUnique({ where: { id: tireIdInt } })
+          : prisma.usedTire.findUnique({ where: { id: tireIdInt } }));
 
-      const unitPrice = tire.priceRetail;
-      const subtotal = unitPrice * qty;
-      const weight = tire.weight * qty;
+        if (!tire || tire.quantity < qty) {
+          return res.status(400).send(`❌ No hay suficientes llantas disponibles para ${tire?.brand || 'ID ' + tireId}`);
+        }
 
-      totalAmount += subtotal;
-      totalWeight += weight;
+        const unitPrice = tire.priceRetail;
+        const subtotal = unitPrice * qty;
+        const weight = tire.weight * qty;
 
-      invoiceItemsData.push({
-        tireType,
-        tireId: parseInt(tireId),
-        quantity: qty,
-        unitPrice,
-        subtotal
-      });
+        totalAmount += subtotal;
+        totalWeight += weight;
 
-      // Actualizar inventario
-      const tireUpdate = { quantity: tire.quantity - qty };
-      if (tireType === 'new') {
-        await prisma.newTire.update({ where: { id: parseInt(tireId) }, data: tireUpdate });
-      } else {
-        await prisma.usedTire.update({ where: { id: parseInt(tireId) }, data: tireUpdate });
+        // ✅ Relación explícita para evitar conflicto de claves foráneas
+        invoiceItemsData.push({
+          tireType,
+          tireId: tireIdInt,
+          quantity: qty,
+          unitPrice,
+          subtotal,
+          ...(tireType === 'new'
+            ? { newTire: { connect: { id: tireIdInt } } }
+            : { usedTire: { connect: { id: tireIdInt } } })
+        });
+
+        // 🔄 Actualizar inventario
+        await (tireType === 'new'
+          ? prisma.newTire.update({ where: { id: tireIdInt }, data: { quantity: tire.quantity - qty } })
+          : prisma.usedTire.update({ where: { id: tireIdInt }, data: { quantity: tire.quantity - qty } }));
+      } catch (err) {
+        console.error(`❌ Error al procesar llanta ID ${tireId}:`, err);
+        return res.status(500).send(`Error al procesar llanta ID ${tireId}`);
       }
     }
 
     if (invoiceItemsData.length === 0) {
-      return res.status(400).send('No se seleccionó ninguna llanta válida');
+      return res.status(400).send('❌ No se seleccionó ninguna llanta válida');
     }
 
-    // 3. Crear factura
+    // 👤 Verificar usuario logueado
+    let userId = null;
+    const loggedUser = req.session?.user;
+
+    if (loggedUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: loggedUser.id } });
+      if (user) {
+        userId = user.id;
+      } else {
+        console.warn(`⚠️ Usuario en sesión con ID ${loggedUser.id} no existe en la base de datos`);
+      }
+    }
+
+    // 🧾 Crear factura
     const invoiceData = {
       invoiceCode: `INV-${Date.now()}`,
       totalAmount,
       totalWeight,
-      customer: { connect: { id: customer.id } },
-      items: { create: invoiceItemsData }
+      customerId: customer.id,
+      items: { create: invoiceItemsData },
+      ...(userId && { userId })
     };
-
-    const loggedUser = req.session?.user;
-    if (loggedUser?.id) {
-      invoiceData.user = { connect: { id: loggedUser.id } };
-    }
 
     const invoice = await prisma.invoice.create({ data: invoiceData });
 
+    console.log('✅ FACTURA CREADA:', invoice.invoiceCode);
     res.redirect(`/invoices/${invoice.id}`);
   } catch (error) {
-    console.error('ERROR AL CREAR FACTURA:', error);
-    res.status(500).send('ERROR AL CREAR FACTURA');
+    console.error('❌ ERROR AL CREAR FACTURA:', error);
+    res.status(500).send('❌ ERROR AL CREAR FACTURA');
   }
 },
+
   showInvoice: async(req, res) => {
     try{
         const invoiceId = parseInt(req.params.id);
@@ -157,15 +177,38 @@ if (!invoice) {
   },
   listInvoices: async (req, res) => {
   try {
+    const search = req.query.search?.toLowerCase().trim() || "";
+
     const invoices = await prisma.invoice.findMany({
-      orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+      orderBy: { date: 'desc' },
       include: {
         customer: true,
         items: true
       }
     });
 
-    res.render('invoices/InvoicesList', { invoices });
+    // Filtro por nombre de cliente si hay búsqueda
+    const filtered = search
+      ? invoices.filter(inv =>
+          inv.customer.fullName.toLowerCase().includes(search)
+        )
+      : invoices;
+
+    // Agrupar por fecha
+    const groupedByDate = {};
+
+    filtered.forEach(invoice => {
+      const dateKey = new Date(invoice.date).toLocaleDateString('es-PA');
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = [];
+      }
+      groupedByDate[dateKey].push(invoice);
+    });
+
+    res.render('invoices/InvoicesList', {
+      groupedByDate,
+      search // 👈 pasamos el valor para mostrarlo en el input
+    });
   } catch (error) {
     console.error('ERROR AL LISTAR LAS FACTURAS:', error);
     res.status(500).send('ERROR AL LISTAR LAS FACTURAS');

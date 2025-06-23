@@ -35,20 +35,37 @@ const usedTiresController = {
             res.status(500).send('ERROR INTERNO DEL SERVIDOR');
         }
     },
-    usedTiresList: async(req, res) => {
-        try{
-            const tires = await prisma.usedTire.findMany({
-                orderBy: {
-                createdAt: 'desc'
-            }
-        });
-            res.render('usedTires/UsedTiresList', {tires})
-        }
-        catch(error){
-            console.error('ERROR AL OBTENER LAS LLANTAS NUEVAS: ', error);
-            res.status(500).send('ERROR AL CARGAR LAS LLANTAS NUEVAS');
-        }
-    },
+    usedTiresList: async (req, res) => {
+  try {
+    const { search } = req.query;
+    const tires = await prisma.usedTire.findMany({
+      where: search
+        ? {
+            OR: [
+              { brand: { contains: search, mode: 'insensitive' } },
+              { size: { contains: search, mode: 'insensitive' } },
+              { type: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {},
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const tiresGrouped = {};
+    tires.forEach(tire => {
+      const dateKey = new Date(tire.createdAt).toLocaleDateString("es-PA");
+      if (!tiresGrouped[dateKey]) {
+        tiresGrouped[dateKey] = [];
+      }
+      tiresGrouped[dateKey].push(tire);
+    });
+
+    res.render('usedTires/UsedTiresList', { tiresGrouped });
+  } catch (error) {
+    console.error('ERROR AL OBTENER LAS LLANTAS USADAS:', error);
+    res.status(500).send('ERROR AL CARGAR LAS LLANTAS USADAS');
+  }
+},
     editUsedTiresForm: async(req, res) => {
         const { id } = req.params;
         try{

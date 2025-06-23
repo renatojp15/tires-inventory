@@ -13,6 +13,15 @@
 
   <div class="container">
     <h1>Facturas Emitidas</h1>
+    <form method="GET" action="/invoices/list" class="search-bar">
+    <input
+      type="text"
+      name="search"
+      placeholder="Buscar por nombre de cliente..."
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+    />
+  <button type="submit">Buscar</button>
+</form>
 
     <table>
       <thead>
@@ -25,22 +34,30 @@
         </tr>
       </thead>
       <tbody>
-        <% if (invoices.length === 0) { %>
-          <tr><td colspan="5">No hay facturas registradas.</td></tr>
-        <% } else { %>
-          <% invoices.forEach(invoice => { %>
-            <tr>
-              <td><%= invoice.invoiceCode %></td>
-              <td><%= invoice.customer.fullName %></td>
-              <td><%= new Date(invoice.date).toLocaleDateString() %></td>
-              <td>$<%= invoice.totalAmount.toFixed(2) %></td>
-              <td>
-                <a href="/invoices/<%= invoice.id %>" class="btn btn-create">Ver</a>
-              </td>
-            </tr>
-          <% }) %>
-        <% } %>
-      </tbody>
+  <% if (Object.keys(groupedByDate).length === 0) { %>
+    <tr><td colspan="5">No hay facturas registradas.</td></tr>
+  <% } else { %>
+    <% Object.keys(groupedByDate).forEach(dateKey => { %>
+      <tr>
+        <td colspan="5" style="background-color: #f0f0f0; font-weight: bold;">
+          📅 <%= dateKey %>
+        </td>
+      </tr>
+
+      <% groupedByDate[dateKey].forEach(invoice => { %>
+        <tr>
+          <td><%= invoice.invoiceCode %></td>
+          <td><%= invoice.customer.fullName %></td>
+          <td><%= new Date(invoice.date).toLocaleDateString() %></td>
+          <td>$<%= invoice.totalAmount.toFixed(2) %></td>
+          <td>
+            <a href="/invoices/<%= invoice.id %>" class="btn btn-create">Ver</a>
+          </td>
+        </tr>
+      <% }) %>
+    <% }) %>
+  <% } %>
+</tbody>
     </table>
   </div>
 </body>

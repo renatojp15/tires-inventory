@@ -35,20 +35,39 @@ const newTiresController = {
             res.status(500).send('ERROR INTERNO DEL SERVIDOR');
         }
     },
-    newTiresList: async(req, res) => {
-        try{
-            const tires = await prisma.newTire.findMany({
-                orderBy: {
-                createdAt: 'desc'
-            }
-        });
-            res.render('newTires/NewTiresList', {tires})
-        }
-        catch(error){
-            console.error('ERROR AL OBTENER LAS LLANTAS NUEVAS: ', error);
-            res.status(500).send('ERROR AL CARGAR LAS LLANTAS NUEVAS');
-        }
-    },
+   newTiresList: async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    const tires = await prisma.newTire.findMany({
+      where: search
+        ? {
+            OR: [
+              { brand: { contains: search, mode: 'insensitive' } },
+              { size: { contains: search, mode: 'insensitive' } },
+              { type: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {},
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Agrupar por fecha
+    const tiresGrouped = {};
+    tires.forEach(tire => {
+      const dateKey = new Date(tire.createdAt).toLocaleDateString("es-PA");
+      if (!tiresGrouped[dateKey]) {
+        tiresGrouped[dateKey] = [];
+      }
+      tiresGrouped[dateKey].push(tire);
+    });
+
+    res.render('newTires/NewTiresList', { tiresGrouped, search });
+  } catch (error) {
+    console.error('ERROR AL OBTENER LAS LLANTAS NUEVAS: ', error);
+    res.status(500).send('ERROR AL CARGAR LAS LLANTAS NUEVAS');
+  }
+},
     editNewTiresForm: async(req, res) => {
         const { id } = req.params;
         try{
