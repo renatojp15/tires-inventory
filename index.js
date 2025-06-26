@@ -44,6 +44,14 @@ app.use('/invoices', invoiceRoutes);
 app.use('/users', usersRoutes);
 app.use('/login', loginRoutes);
 
+//Middleware para asegurar que cualquier vaya a consola
+process.on('unhandledRejection', (reason) => {
+  console.error('↯  Unhandled Rejection:\n', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('💥 Uncaught Exception:\n', err);
+});
+
 //Iniciar servidor
 app.listen(port, '0.0.0.0', () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
