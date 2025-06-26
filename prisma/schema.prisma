@@ -101,18 +101,13 @@ model Invoice {
 model InvoiceItem {
   id         Int  @id @default(autoincrement())
   invoiceId  Int
-  /**
-   * FKs opcionales – solo uno tendrá valor
-   */
   newTireId  Int?
   usedTireId Int?
+  quantity   Int
+  unitPrice  Float
+  subtotal   Float
 
-  tireType  String // «Nueva» / «Usada» (lo mantienes para las vistas)
-  quantity  Int
-  unitPrice Float
-  subtotal  Float
-
-  invoice  Invoice   @relation(fields: [invoiceId], references: [id])
-  newTire  NewTire?  @relation("NewTireToInvoiceItem", fields: [newTireId], references: [id])
-  usedTire UsedTire? @relation("UsedTireToInvoiceItem", fields: [usedTireId], references: [id])
+  invoice    Invoice   @relation(fields: [invoiceId], references: [id])
+  newTire    NewTire?  @relation("NewTireToInvoiceItem", fields: [newTireId], references: [id])
+  usedTire   UsedTire? @relation("UsedTireToInvoiceItem", fields: [usedTireId], references: [id])
 }

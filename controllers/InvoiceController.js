@@ -20,27 +20,30 @@ const invoiceController = {
     createInvoice: async (req, res) => {
   try {
     const { fullName, idNumber, phone, address, items } = req.body;
-    if (!items || !items.length) {
+
+    if (!items || items.length === 0) {
       return res.status(400).send('Debe seleccionar al menos una llanta');
     }
 
-    /* 1. Cliente --------------------------------------------------------- */
-    const search = idNumber?.trim()
+    /* 1. Buscar o crear cliente ---------------------------------------- */
+    const searchCondition = idNumber?.trim()
       ? { idNumber: idNumber.trim() }
       : { fullName: fullName.toLowerCase() };
 
-    let customer =
-      (await prisma.customer.findFirst({ where: search })) ||
-      (await prisma.customer.create({
+    let customer = await prisma.customer.findFirst({ where: searchCondition });
+
+    if (!customer) {
+      customer = await prisma.customer.create({
         data: {
           fullName: fullName.toLowerCase(),
           idNumber: idNumber?.trim() || null,
-          phone   : phone || null,
-          address : address || null
+          phone: phone || null,
+          address: address || null
         }
-      }));
+      });
+    }
 
-    /* 2. Ítems ----------------------------------------------------------- */
+    /* 2. Procesar ítems ------------------------------------------------ */
     let totalAmount = 0;
     let totalWeight = 0;
     const invoiceItemsData = [];
@@ -48,56 +51,74 @@ const invoiceController = {
     for (const raw of items) {
       if (!raw.selected) continue;
 
-      const qty   = parseInt(raw.quantity);
-      const idInt = parseInt(raw.tireId);
-      if (!qty || qty <= 0) continue;
+      const qty = parseInt(raw.quantity);
+      if (isNaN(qty) || qty <= 0) continue;
 
-      const tire =
-        raw.tireType === 'new'
-          ? await prisma.newTire.findUnique({ where: { id: idInt } })
-          : await prisma.usedTire.findUnique({ where: { id: idInt } });
+      const tireIdInt = parseInt(raw.tireId);
 
-      if (!tire || tire.quantity < qty) {
-        return res
-          .status(400)
-          .send(`No hay stock suficiente para ${tire?.brand ?? 'ID ' + idInt}`);
+      let tire = null;
+      let itemData = {
+        quantity: qty,
+        unitPrice: 0,
+        subtotal: 0
+      };
+
+      if (raw.tireType === 'new') {
+        tire = await prisma.newTire.findUnique({ where: { id: tireIdInt } });
+        if (!tire || tire.quantity < qty) {
+          return res.status(400).send(`No hay suficientes llantas nuevas disponibles para ${tire?.brand || 'ID ' + raw.tireId}`);
+        }
+
+        itemData.unitPrice = tire.priceRetail;
+        itemData.subtotal = tire.priceRetail * qty;
+        itemData.newTire = { connect: { id: tireIdInt } };
+
+        await prisma.newTire.update({
+          where: { id: tireIdInt },
+          data: { quantity: { decrement: qty } }
+        });
+
+      } else if (raw.tireType === 'used') {
+        tire = await prisma.usedTire.findUnique({ where: { id: tireIdInt } });
+        if (!tire || tire.quantity < qty) {
+          return res.status(400).send(`No hay suficientes llantas usadas disponibles para ${tire?.brand || 'ID ' + raw.tireId}`);
+        }
+
+        itemData.unitPrice = tire.priceRetail;
+        itemData.subtotal = tire.priceRetail * qty;
+        itemData.usedTire = { connect: { id: tireIdInt } };
+
+        await prisma.usedTire.update({
+          where: { id: tireIdInt },
+          data: { quantity: { decrement: qty } }
+        });
+      } else {
+        return res.status(400).send('Tipo de llanta inválido');
       }
 
-      totalAmount += tire.priceRetail * qty;
-      totalWeight += tire.weight       * qty;
-
-      /* IMPORTANTÍSIMO: solo enviamos la FK que existe en el modelo ------ */
-      invoiceItemsData.push(
-        raw.tireType === 'new'
-          ? { quantity: qty, unitPrice: tire.priceRetail, subtotal: tire.priceRetail * qty,
-              newTire:  { connect: { id: idInt } } }
-          : { quantity: qty, unitPrice: tire.priceRetail, subtotal: tire.priceRetail * qty,
-              usedTire: { connect: { id: idInt } } }
-      );
-
-      /* Descontar inventario -------------------------------------------- */
-      await (raw.tireType === 'new'
-        ? prisma.newTire.update({ where: { id: idInt }, data: { quantity: { decrement: qty } } })
-        : prisma.usedTire.update({ where: { id: idInt }, data: { quantity: { decrement: qty } } })
-      );
+      totalAmount += itemData.subtotal;
+      totalWeight += tire.weight * qty;
+      invoiceItemsData.push(itemData);
     }
 
-    if (!invoiceItemsData.length) {
+    if (invoiceItemsData.length === 0) {
       return res.status(400).send('No se añadió ningún ítem válido');
     }
 
-    /* 3. Usuario --------------------------------------------------------- */
+    /* 3. Usuario autenticado ------------------------------------------- */
     const userId = req.session?.user?.id ?? null;
 
-    /* 4. Crear factura --------------------------------------------------- */
+    /* 4. Crear factura ------------------------------------------------- */
     const invoice = await prisma.invoice.create({
       data: {
-        invoiceCode : `INV-${Date.now()}`,
-        totalAmount ,
-        totalWeight ,
-        customerId  : customer.id,
+        invoiceCode: `INV-${Date.now()}`,
+        totalAmount,
+        totalWeight,
+        customerId: customer.id,
         ...(userId && { userId }),
-        items       : { create: invoiceItemsData }
+        items: {
+          create: invoiceItemsData
+        }
       }
     });
 
