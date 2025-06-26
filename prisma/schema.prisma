@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,51 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/**
+ * --------- LLANTAS NUEVAS ----------
+ */
 model NewTire {
-  id             Int            @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   brand          String
   size           String
-  type           String         // 🚗 Tipo de vehículo: Auto, Moto, Tractor
-  weight         Float          // ⚖️ Peso por llanta
-  condition      String         @default("Nueva")
+  type           String
+  weight         Float
+  condition      String   @default("Nueva")
   quantity       Int
   priceUnit      Float
   priceWholesale Float
   priceRetail    Float
   location       String
-  createdAt      DateTime       @default(now())
+  createdAt      DateTime @default(now())
 
-  invoiceItems   InvoiceItem[]  @relation("NewTireItems")
+  /**
+   * ←-- solo nombre de la relación
+   */
+  invoiceItems InvoiceItem[] @relation("NewTireToInvoiceItem")
 }
 
+/**
+ * --------- LLANTAS USADAS ----------
+ */
 model UsedTire {
-  id             Int            @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   brand          String
   size           String
-  type           String         // 🚗 Tipo de vehículo: Auto, Moto, Tractor
-  weight         Float          // ⚖️ Peso por llanta
-  condition      String         @default("Usada")
+  type           String
+  weight         Float
+  condition      String   @default("Usada")
   quantity       Int
   priceUnit      Float
   priceWholesale Float
   priceRetail    Float
   location       String
-  createdAt      DateTime       @default(now())
+  createdAt      DateTime @default(now())
 
-  invoiceItems   InvoiceItem[]  @relation("UsedTireItems")
+  invoiceItems InvoiceItem[] @relation("UsedTireToInvoiceItem")
 }
 
+/**
+ * ------------- CLIENTE -------------
+ */
 model Customer {
   id        Int      @id @default(autoincrement())
   fullName  String
-  idNumber  String?  // 🔁 Ahora es opcional (puede quedar vacío)
+  idNumber  String?
   phone     String?
   address   String?
   createdAt DateTime @default(now())
 
-  invoices  Invoice[]
+  invoices Invoice[]
 }
 
+/**
+ * -------------- USUARIO ------------
+ */
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
@@ -63,34 +75,44 @@ model User {
   password  String
   createdAt DateTime @default(now())
 
-  invoices  Invoice[]
+  invoices Invoice[]
 }
 
+/**
+ * ------------- FACTURA -------------
+ */
 model Invoice {
-  id           Int           @id @default(autoincrement())
-  invoiceCode  String        @unique
-  date         DateTime      @default(now())
-  totalAmount  Float
-  totalWeight  Float         @default(0) // ✅ Nuevo campo agregado
-  customerId   Int
-  userId       Int?
+  id          Int      @id @default(autoincrement())
+  invoiceCode String   @unique
+  date        DateTime @default(now())
+  totalAmount Float
+  totalWeight Float    @default(0)
+  customerId  Int
+  userId      Int?
 
-  customer     Customer      @relation(fields: [customerId], references: [id])
-  user         User?         @relation(fields: [userId], references: [id])
-  items        InvoiceItem[]
+  customer Customer      @relation(fields: [customerId], references: [id])
+  user     User?         @relation(fields: [userId], references: [id])
+  items    InvoiceItem[]
 }
 
+/**
+ * ---------- ÍTEMS DE FACTURA -------
+ */
 model InvoiceItem {
-  id         Int       @id @default(autoincrement())
+  id         Int  @id @default(autoincrement())
   invoiceId  Int
-  tireType   String
-  tireId     Int
-  quantity   Int
-  unitPrice  Float
-  subtotal   Float
+  /**
+   * FKs opcionales – solo uno tendrá valor
+   */
+  newTireId  Int?
+  usedTireId Int?
 
-  invoice    Invoice   @relation(fields: [invoiceId], references: [id])
+  tireType  String // «Nueva» / «Usada» (lo mantienes para las vistas)
+  quantity  Int
+  unitPrice Float
+  subtotal  Float
 
-  newTire    NewTire?  @relation("NewTireItems", fields: [tireId], references: [id], map: "fk_invoiceitem_newtire")
-  usedTire   UsedTire? @relation("UsedTireItems", fields: [tireId], references: [id], map: "fk_invoiceitem_usedtire")
+  invoice  Invoice   @relation(fields: [invoiceId], references: [id])
+  newTire  NewTire?  @relation("NewTireToInvoiceItem", fields: [newTireId], references: [id])
+  usedTire UsedTire? @relation("UsedTireToInvoiceItem", fields: [usedTireId], references: [id])
 }

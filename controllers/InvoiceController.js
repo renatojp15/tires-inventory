@@ -20,30 +20,27 @@ const invoiceController = {
     createInvoice: async (req, res) => {
   try {
     const { fullName, idNumber, phone, address, items } = req.body;
-
-    if (!items || items.length === 0) {
+    if (!items || !items.length) {
       return res.status(400).send('Debe seleccionar al menos una llanta');
     }
 
     /* 1. Cliente --------------------------------------------------------- */
-    const searchCondition = idNumber?.trim()
+    const search = idNumber?.trim()
       ? { idNumber: idNumber.trim() }
       : { fullName: fullName.toLowerCase() };
 
-    let customer = await prisma.customer.findFirst({ where: searchCondition });
-
-    if (!customer) {
-      customer = await prisma.customer.create({
+    let customer =
+      (await prisma.customer.findFirst({ where: search })) ||
+      (await prisma.customer.create({
         data: {
           fullName: fullName.toLowerCase(),
           idNumber: idNumber?.trim() || null,
-          phone: phone || null,
-          address: address || null
+          phone   : phone || null,
+          address : address || null
         }
-      });
-    }
+      }));
 
-    /* 2. Procesar ítems -------------------------------------------------- */
+    /* 2. Ítems ----------------------------------------------------------- */
     let totalAmount = 0;
     let totalWeight = 0;
     const invoiceItemsData = [];
@@ -51,37 +48,37 @@ const invoiceController = {
     for (const raw of items) {
       if (!raw.selected) continue;
 
-      const qty = parseInt(raw.quantity);
-      if (isNaN(qty) || qty <= 0) continue;
+      const qty   = parseInt(raw.quantity);
+      const idInt = parseInt(raw.tireId);
+      if (!qty || qty <= 0) continue;
 
-      const tireIdInt = parseInt(raw.tireId);
       const tire =
         raw.tireType === 'new'
-          ? await prisma.newTire.findUnique({ where: { id: tireIdInt } })
-          : await prisma.usedTire.findUnique({ where: { id: tireIdInt } });
+          ? await prisma.newTire.findUnique({ where: { id: idInt } })
+          : await prisma.usedTire.findUnique({ where: { id: idInt } });
 
       if (!tire || tire.quantity < qty) {
-        return res.status(400).send(`No hay stock suficiente para ${tire?.brand ?? 'ID '+raw.tireId}`);
+        return res
+          .status(400)
+          .send(`No hay stock suficiente para ${tire?.brand ?? 'ID ' + idInt}`);
       }
 
-      const subtotal = tire.priceRetail * qty;
-      totalAmount += subtotal;
-      totalWeight += tire.weight * qty;
+      totalAmount += tire.priceRetail * qty;
+      totalWeight += tire.weight       * qty;
 
-      invoiceItemsData.push({
-        tireType: raw.tireType,
-        quantity: qty,
-        unitPrice: tire.priceRetail,
-        subtotal,
-        ...(raw.tireType === 'new'
-            ? { newTire:  { connect: { id: tireIdInt } } }
-            : { usedTire: { connect: { id: tireIdInt } } })
-      });
+      /* IMPORTANTÍSIMO: solo enviamos la FK que existe en el modelo ------ */
+      invoiceItemsData.push(
+        raw.tireType === 'new'
+          ? { quantity: qty, unitPrice: tire.priceRetail, subtotal: tire.priceRetail * qty,
+              newTire:  { connect: { id: idInt } } }
+          : { quantity: qty, unitPrice: tire.priceRetail, subtotal: tire.priceRetail * qty,
+              usedTire: { connect: { id: idInt } } }
+      );
 
-      /* descontar inventario */
+      /* Descontar inventario -------------------------------------------- */
       await (raw.tireType === 'new'
-        ? prisma.newTire.update({ where: { id: tireIdInt }, data: { quantity: { decrement: qty } } })
-        : prisma.usedTire.update({ where: { id: tireIdInt }, data: { quantity: { decrement: qty } } })
+        ? prisma.newTire.update({ where: { id: idInt }, data: { quantity: { decrement: qty } } })
+        : prisma.usedTire.update({ where: { id: idInt }, data: { quantity: { decrement: qty } } })
       );
     }
 
@@ -89,18 +86,18 @@ const invoiceController = {
       return res.status(400).send('No se añadió ningún ítem válido');
     }
 
-    /* 3. Usuario autenticado ------------------------------------------- */
+    /* 3. Usuario --------------------------------------------------------- */
     const userId = req.session?.user?.id ?? null;
 
-    /* 4. Crear factura -------------------------------------------------- */
+    /* 4. Crear factura --------------------------------------------------- */
     const invoice = await prisma.invoice.create({
       data: {
-        invoiceCode: `INV-${Date.now()}`,
-        totalAmount,
-        totalWeight,
-        customerId: customer.id,
+        invoiceCode : `INV-${Date.now()}`,
+        totalAmount ,
+        totalWeight ,
+        customerId  : customer.id,
         ...(userId && { userId }),
-        items: { create: invoiceItemsData }
+        items       : { create: invoiceItemsData }
       }
     });
 
