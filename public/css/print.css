@@ -1,0 +1,35 @@
+@page {
+  margin: 1.5cm;
+}
+
+.invoice-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.no-print, .no-print * {
+  display: none !important;
+}
+
+.invoice-header, .invoice-footer {
+  page-break-inside: avoid;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: left;
+}
+
+.invoice-total {
+  margin-top: 20px;
+  font-weight: bold;
+}

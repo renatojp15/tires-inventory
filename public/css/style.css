@@ -1,3 +1,4 @@
+/*----------------------------------------- ESTILOS GENERALES ------------------------------------------------*/
 * {
   margin: 0;
   padding: 0;
@@ -9,8 +10,9 @@ body {
   background-color: #f9f9f9;
   padding: 20px;
 }
+/*----------------------------------------- FIN ESTILOS GENERALES ------------------------------------------------*/
 
-/* ------------------ Formulario de registro de llantas ----------------------- */
+/* ---------------------------------------------- ESTILOS DE FORMULARIOS --------------------------------------------------- */
 
 .form-container {
   background-color: #ffffff;
@@ -66,9 +68,9 @@ input[type="submit"] {
 .invoice-container button {
   width: 100%;
 }
+/* ------------------------------------------ FIN DE ESTILOS DE FORMULARIOS ---------------------------------- */
 
-/* ----------------- Tabla de registros de llantas ------------------ */
-
+/* ------------------------------- ESTILOS PARA LISTAS O TABLAS DE LLANTAS REGISTRADAS ---------------------------- */
 .container {
   max-width: 1200px;
   margin: auto;
@@ -77,39 +79,32 @@ input[type="submit"] {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
 .container h1 {
   text-align: center;
   margin-bottom: 20px;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
 }
-
 thead {
   background-color: #333;
   color: white;
 }
-
 th, td {
   padding: 12px;
   border: 1px solid #ccc;
   text-align: center;
 }
-
 tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
-
 .action-buttons {
   display: flex;
   gap: 5px;
   align-items: center;
   justify-content: center;
 }
-
 .action-buttons a,
 .action-buttons button {
   display: inline-block;
@@ -121,25 +116,21 @@ tbody tr:nth-child(even) {
   border: none;
   cursor: pointer;
 }
-
 .btn-edit {
   background-color: #007bff;
 }
-
 .btn-edit:hover {
   background-color: #0056b3;
 }
-
 .btn-delete {
   background-color: #dc3545;
 }
-
 .btn-delete:hover {
   background-color: #c82333;
 }
+/* ------------------------------- FIN ESTILOS PARA LISTAS O TABLAS DE LLANTAS REGISTRADAS --------------------- */
 
-/* ------------------ Estilos del sistema de facturación ------------------ */
-
+/* ------------------------------------ ESTILOS DEL SISTEMA DE FACTURACIÓN -------------------------------------- */
 .tire-select {
   margin-bottom: 20px;
   border: 1px solid #ccc;
@@ -196,9 +187,9 @@ fieldset {
   margin-top: 15px;
   cursor: pointer;
 }
+/* ------------------------------------ FIN ESTILOS DEL SISTEMA DE FACTURACIÓN -------------------------------------- */
 
-/* ----------- Botones personalizados por acción ----------- */
-
+/* ------------------------------- BOTONES PERSONALIZADOS POR FUNCIÓN ----------------------------------------- */
 .btn-create {
   background-color: #007bff;
 }
@@ -237,8 +228,9 @@ fieldset {
 .btn-excel:hover {
   background-color: #155c37;
 }
+/* ------------------------------- FIN ESTILOS BOTONES PERSONALIZADOS POR FUNCIÓN -------------------------------- */
 
-/* --------------------- Tablas ----------------------- */
+/* ----------------------------- ESTILOS DE TABLAS DE FACTURAS --------------------------------------------- */
 
 .invoice-table {
   width: 100%;
@@ -266,6 +258,7 @@ fieldset {
 .invoice-footer .buttons {
   margin-top: 15px;
 }
+/* ----------------------------- FIN ESTILOS DE TABLAS DE FACTURAS --------------------------------------------- */
 
 @media print {
   body {
@@ -287,7 +280,7 @@ fieldset {
   margin-bottom: 10px;
 }
 
-/* ----------- NAVBAR -------------- */
+/* ------------------------------------------- ESTILOS NAVBAR ---------------------------------------------- */
 .navbar {
   background-color: #f4f4f4;
   padding: 10px;
@@ -310,8 +303,9 @@ fieldset {
 .navbar .btn:hover {
   background-color: #218838;
 }
+/* ----------------------------------------- FIN ESTILOS NAVBAR ---------------------------------------------- */
 
-/* ------------ NAVBAR botón regresar ----------- */
+/* ---------------------------------- NAVBAR BOTÓN REGRESAR A LISTAS ---------------------------------------- */
 .btn-nav {
   background-color: #007bff;
   color: white;
@@ -324,8 +318,9 @@ fieldset {
 .btn-nav:hover {
   background-color: #0056b3;
 }
+/* -------------------------------- FIN NAVBAR BOTÓN REGRESAR A LISTAS ---------------------------------------- */
 
-/* ----------- Grupo de botones en factura ----------- */
+/* ------------------------------- ESTILOS EN BOTONES DE FACTURA -------------------------------- */
 .btn-group {
   display: flex;
   flex-wrap: wrap;
@@ -338,7 +333,9 @@ fieldset {
   flex: 1 1 auto;
   max-width: 200px;
 }
+/* ------------------------------- FIN ESTILOS EN BOTONES DE FACTURA -------------------------------- */
 
+/* ---------------------------------- ESTILOS BOTÓN MENÚ PRINCIPAL ---------------------------------- */
 .navbar .btn-menu {
   background-color: #ff9800 !important;
   color: white !important;
@@ -347,8 +344,9 @@ fieldset {
 .navbar .btn-menu:hover {
   background-color: #e68900 !important;
 }
+/* ---------------------------------- FIN ESTILOS BOTÓN MENÚ PRINCIPAL ---------------------------------- */
 
-/* -------- Estilos para barra de búsqueda -------- */
+/* --------------------------------- ESTILOS DE LA BARRA DE BUSQUEDA ----------------------------- */
 .search-bar {
   display: flex;
   gap: 10px;
@@ -379,3 +377,26 @@ fieldset {
 .search-bar button:hover {
   background-color: #0056b3;
 }
+/* ------------------------------- FIN ESTILOS DE LA BARRA DE BUSQUEDA ----------------------------- */
+
+/* --------------------------- ESTILOS DE RANGO PARA EXPORTAR A EXCEL ---------------------------- */
+.export-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+.export-range input[type="date"] {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.export-range .hint {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  color: #666;
+}
+/* ------------------------- FIN ESTILOS DE RANGO PARA EXPORTAR A EXCEL ---------------------------- */

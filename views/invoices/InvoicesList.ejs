@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
   <title>Listado de Facturas</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -17,7 +18,7 @@
     <input
       type="text"
       name="search"
-      placeholder="Buscar por nombre de cliente..."
+      placeholder="Buscar por nombre de cliente o código de factura"
       value="<%= typeof search !== 'undefined' ? search : '' %>"
     />
   <button type="submit">Buscar</button>
@@ -47,7 +48,7 @@
       <% groupedByDate[dateKey].forEach(invoice => { %>
         <tr>
           <td><%= invoice.invoiceCode %></td>
-          <td><%= invoice.customer.fullName %></td>
+          <td><%= invoice.customer.fullName.replace(/\b\w/g,c=>c.toUpperCase()) %></td>
           <td><%= new Date(invoice.date).toLocaleDateString() %></td>
           <td>$<%= invoice.totalAmount.toFixed(2) %></td>
           <td>

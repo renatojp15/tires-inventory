@@ -1,5 +1,6 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
+const ExcelJS = require('exceljs');
 
 const newTiresController = {
     newTiresForm: (req, res) => {
@@ -116,7 +117,74 @@ const newTiresController = {
             console.error('ERROR AL ELIMINAR LA LLANTA:', error);
             res.status(500).send('ERROR AL ELIMINAR LA LLANTA');
         }
+    },
+    exportExcel: async(req, res) => {
+        try {
+        /* 1 - Parsear y validar fechas */
+        const from = new Date(req.query.from);
+        const to   = new Date(req.query.to);
+
+        if (isNaN(from) || isNaN(to) || from > to) {
+        return res.status(400).send('❌ Fechas inválidas');
+        }
+
+        const diffDays = Math.floor((to - from) / (1000*60*60*24));
+
+        const isAdmin  = req.session.user?.role === 'admin';
+        const MAX_DAYS = isAdmin ? 90 : 30;          // ← ajusta a gusto
+
+        if (diffDays > MAX_DAYS) {
+        return res
+            .status(400)
+            .send(`❌ El rango no puede exceder ${MAX_DAYS} días.`);
+        }
+
+        /* 2 - Consultar inventario dentro del rango */
+        const tires = await prisma.newTire.findMany({
+        where: {
+            createdAt: {
+            gte: from,
+            lte: to
+            }
+        },
+        orderBy: { createdAt: 'asc' }
+        });
+
+        /* 3 - Generar archivo Excel (mínimo viable) */
+        const wb  = new ExcelJS.Workbook();
+        const ws  = wb.addWorksheet('Inventario');
+
+        ws.addRow([
+        'Fecha', 'Marca', 'Referencia', 'Tipo', 'Peso', 'Cantidad',
+        'P.Unit', 'P.Mayor', 'P.Detal', 'Ubicación'
+        ]);
+
+        tires.forEach(t => {
+        ws.addRow([
+            t.createdAt.toISOString().split('T')[0],
+            t.brand, t.size, t.type, t.weight, t.quantity,
+            t.priceUnit, t.priceWholesale, t.priceRetail, t.location
+        ]);
+        });
+
+        /* 4 - Enviar al cliente */
+        res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="inventario_${req.query.from}_${req.query.to}.xlsx"`
+        );
+        res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+
+        await wb.xlsx.write(res);
+        res.end();
+
+    } catch (err) {
+        console.error('💥 ERROR exportando inventario:', err);
+        res.status(500).send('Error al exportar inventario');
     }
+    },
 };
 
 module.exports = newTiresController;

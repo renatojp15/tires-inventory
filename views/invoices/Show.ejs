@@ -2,16 +2,34 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
   <title>Factura <%= invoice.invoiceCode %></title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/print.css" media="print">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    function exportToPDF() {
-      window.print();
-    }
+    function exportToPDF() { window.print(); }
   </script>
 </head>
 
 <body>
+  <!-- ③  ALERTA DE ÉXITO --------------------------------------------- -->
+  <script>
+    /* Lee ?success=... de la URL */
+    const params  = new URLSearchParams(window.location.search);
+    const message = params.get('success');
+    if (message){
+      Swal.fire({
+        icon:   'success',
+        title:  '¡Operación exitosa!',
+        text:   message,
+        confirmButtonColor: '#3085d6'
+      })
+      /*  Limpia la URL para que la alerta no se repita
+          al refrescar  */
+      history.replaceState(null, '', window.location.pathname);
+    }
+  </script>
   <nav class="navbar no-print">
     <a href="/invoices/list" class="btn-nav">← Ir a la Lista de Facturas</a>
   </nav>
@@ -35,7 +53,7 @@
     <hr>
 
     <h3>Datos del Cliente</h3>
-    <p><strong>Nombre:</strong> <%= invoice.customer.fullName %></p>
+    <p><strong>Nombre:</strong> <%= invoice.customer.fullName.replace(/\b\w/g,c=>c.toUpperCase()) %></p>
     <% if (invoice.customer.idNumber) { %>
       <p><strong>Cédula / ID:</strong> <%= invoice.customer.idNumber %></p>
     <% } %>
@@ -95,14 +113,41 @@
       <% if (!isPdf) { %>
       <div class="buttons btn-group no-print" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px;">
         <a href="/invoices/new" class="btn btn-create">🧾 Nueva Factura</a>
-        <button onclick="exportToPDF()" class="btn btn-secondary">🖨️ Imprimir o Guardar PDF</button>
+        <button onclick="exportToPDF()" class="btn btn-secondary">🖨️ Imprimir</button>
         <a href="/invoices/<%= invoice.id %>/export-excel" class="btn btn-excel">📥 Exportar a Excel</a>
-        <form action="/invoices/<%= invoice.id %>/delete" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta factura? Esta acción no se puede deshacer.')" style="display: inline;">
+        <form action="/invoices/<%= invoice.id %>/delete" method="POST" class="delete-invoice-form" style="display: inline;">
           <button type="submit" class="btn btn-delete">🗑️ Eliminar Factura</button>
         </form>
       </div>
       <% } %>
     </footer>
   </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // buscamos todos los formularios de eliminación (por si en el futuro hay varios)
+    const deleteForms = document.querySelectorAll('.delete-invoice-form');
+
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();                       // detenemos envío
+
+        const respuesta = await Swal.fire({
+          title: '¿Eliminar factura?',
+          text: 'Esta acción NO se puede deshacer',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        });
+
+        if (respuesta.isConfirmed) {
+          form.submit();                          // ahora sí mandamos el POST
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>

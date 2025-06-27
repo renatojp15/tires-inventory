@@ -123,7 +123,7 @@ const invoiceController = {
     });
 
     console.log('✅ FACTURA CREADA:', invoice.invoiceCode);
-    res.redirect(`/invoices/${invoice.id}`);
+    res.redirect(`/invoices/${invoice.id}?success=Factura creada exitosamente`);
 
   } catch (err) {
     console.error('💥 ERROR AL CREAR FACTURA:\n', err);
@@ -166,42 +166,44 @@ if (!invoice) {
         res.status(500).send('ERROR AL MOSTRAR LA FACTURA');
     }
   },
-  listInvoices: async (req, res) => {
+  // controllers/InvoiceController.js
+listInvoices: async (req, res) => {
   try {
-    const search = req.query.search?.toLowerCase().trim() || "";
+    /* 1. Tomamos la cadena de búsqueda ------------------------------ */
+    const q = (req.query.search || '').trim().toLowerCase();   // '' si viene vacía
 
+    /* 2. Construimos el where dinámico ------------------------------ */
+    const where = q
+      ? {
+          OR: [
+            { invoiceCode: { contains: q, mode: 'insensitive' } },                // por código
+            { customer:   { fullName: { contains: q, mode: 'insensitive' } } }    // por nombre
+          ]
+        }
+      : {};   // sin filtro → trae todo
+
+    /* 3. Traemos las facturas (ya filtradas) ------------------------ */
     const invoices = await prisma.invoice.findMany({
+      where,
       orderBy: { date: 'desc' },
-      include: {
-        customer: true,
-        items: true
-      }
+      include: { customer: true, items: true }
     });
 
-    // Filtro por nombre de cliente si hay búsqueda
-    const filtered = search
-      ? invoices.filter(inv =>
-          inv.customer.fullName.toLowerCase().includes(search)
-        )
-      : invoices;
-
-    // Agrupar por fecha
+    /* 4. Agrupamos por fecha (DD/MM/AAAA) --------------------------- */
     const groupedByDate = {};
-
-    filtered.forEach(invoice => {
-      const dateKey = new Date(invoice.date).toLocaleDateString('es-PA');
-      if (!groupedByDate[dateKey]) {
-        groupedByDate[dateKey] = [];
-      }
-      groupedByDate[dateKey].push(invoice);
+    invoices.forEach(inv => {
+      const key = new Date(inv.date).toLocaleDateString('es-PA');
+      (groupedByDate[key] ??= []).push(inv);
     });
 
+    /* 5. Render ------------------------------------------------------ */
     res.render('invoices/InvoicesList', {
       groupedByDate,
-      search // 👈 pasamos el valor para mostrarlo en el input
+      search: q            // para mantener el valor en el input
     });
-  } catch (error) {
-    console.error('ERROR AL LISTAR LAS FACTURAS:', error);
+
+  } catch (err) {
+    console.error('⚠️ ERROR AL LISTAR FACTURAS:', err);
     res.status(500).send('ERROR AL LISTAR LAS FACTURAS');
   }
 },
@@ -358,12 +360,17 @@ exportInvoiceToExcel: async (req, res) => {
 
     // Cuerpo de la tabla
     invoice.items.forEach((item) => {
-      const tire = item.tireType === 'new' ? item.newTire : item.usedTire;
-      const peso = tire.weight;
-      const subtotal = item.quantity * item.unitPrice;
+
+      // ✔️ Detectar la llanta realmente vinculada
+      const tire      = item.newTire ?? item.usedTire;        // nunca serán ambas
+      if (!tire) return;                                      // por si acaso
+
+      const condition = item.newTire ? 'Nueva' : 'Usada';     // para la columna
+      const peso      = tire.weight ?? 0;
+      const subtotal  = item.quantity * item.unitPrice;
 
       sheet.addRow([
-        tire.condition,
+        condition,
         tire.brand,
         tire.size,
         item.quantity,
@@ -376,7 +383,7 @@ exportInvoiceToExcel: async (req, res) => {
     // Totales
     sheet.addRow([]);
     sheet.addRow(['Total a pagar', invoice.totalAmount]);
-    sheet.addRow(['Peso total', invoice.totalWeight]);
+    sheet.addRow(['Peso total',   invoice.totalWeight]);
 
     // Enviar archivo al navegador
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

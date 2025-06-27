@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
   <title>Registros de Llantas Nuevas</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -12,6 +13,19 @@
     <a href="/usedtires/list" class="btn btn-secondary">Ver Llantas Usadas</a>
     <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
   </nav>
+
+  <form action="/newtires/export" method="GET" class="export-range">
+      <label>Desde:
+        <input type="date" name="from" required>
+      </label>
+      <label>Hasta:
+        <input type="date" name="to" required>
+      </label>
+      <button type="submit" class="btn-excel">
+        📥 Exportar Inventario
+      </button>
+      <p class="hint">Solo se permiten rangos de <strong>máximo 30 días</strong>.</p>
+    </form>
 
   <div class="container">
     <h1>Registros de Llantas NUEVAS</h1>

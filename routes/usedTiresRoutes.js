@@ -10,5 +10,6 @@ router.get('/list', isAuthenticated, usedTiresController.usedTiresList);
 router.get('/edit/:id', isAuthenticated, usedTiresController.editUsedTiresForm);
 router.post('/edit/:id', isAuthenticated, usedTiresController.updateUsedTires);
 router.delete('/:id', isAuthenticated, usedTiresController.deleteUsedTires);
+router.get('/export', isAuthenticated, usedTiresController.exportExcel);
 
 module.exports = router;
