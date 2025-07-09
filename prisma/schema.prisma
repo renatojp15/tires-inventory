@@ -7,9 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/**
- * --------- LLANTAS NUEVAS ----------
- */
+/* --------- LLANTAS NUEVAS ---------- */
 model NewTire {
   id             Int      @id @default(autoincrement())
   brand          String
@@ -18,21 +16,17 @@ model NewTire {
   weight         Float
   condition      String   @default("Nueva")
   quantity       Int
+  minStock       Int      @default(5)   // 👈 NUEVO: mínimo permitido
   priceUnit      Float
   priceWholesale Float
   priceRetail    Float
   location       String
   createdAt      DateTime @default(now())
 
-  /**
-   * ←-- solo nombre de la relación
-   */
-  invoiceItems InvoiceItem[] @relation("NewTireToInvoiceItem")
+  invoiceItems   InvoiceItem[] @relation("NewTireToInvoiceItem")
 }
 
-/**
- * --------- LLANTAS USADAS ----------
- */
+/* --------- LLANTAS USADAS ---------- */
 model UsedTire {
   id             Int      @id @default(autoincrement())
   brand          String
@@ -41,18 +35,27 @@ model UsedTire {
   weight         Float
   condition      String   @default("Usada")
   quantity       Int
+  minStock       Int      @default(5)   // 👈 NUEVO
   priceUnit      Float
   priceWholesale Float
   priceRetail    Float
   location       String
   createdAt      DateTime @default(now())
 
-  invoiceItems InvoiceItem[] @relation("UsedTireToInvoiceItem")
+  invoiceItems   InvoiceItem[] @relation("UsedTireToInvoiceItem")
 }
 
-/**
- * ------------- CLIENTE -------------
- */
+/* ------------- (OPCIONAL) ALERTAS ------------- */
+model StockAlert {
+  id         Int      @id @default(autoincrement())
+  tireType   String              // 'new' o 'used'
+  tireId     Int                 // referencia a NewTire.id o UsedTire.id
+  quantity   Int
+  createdAt  DateTime @default(now())
+  resolved   Boolean  @default(false) // marcar como atendida
+}
+
+/* ------------- CLIENTE ------------- */
 model Customer {
   id        Int      @id @default(autoincrement())
   fullName  String
@@ -61,12 +64,10 @@ model Customer {
   address   String?
   createdAt DateTime @default(now())
 
-  invoices Invoice[]
+  invoices  Invoice[]
 }
 
-/**
- * -------------- USUARIO ------------
- */
+/* -------------- USUARIO ------------ */
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
@@ -75,12 +76,10 @@ model User {
   password  String
   createdAt DateTime @default(now())
 
-  invoices Invoice[]
+  invoices  Invoice[]
 }
 
-/**
- * ------------- FACTURA -------------
- */
+/* ------------- FACTURA ------------- */
 model Invoice {
   id          Int      @id @default(autoincrement())
   invoiceCode String   @unique
@@ -90,14 +89,12 @@ model Invoice {
   customerId  Int
   userId      Int?
 
-  customer Customer      @relation(fields: [customerId], references: [id])
-  user     User?         @relation(fields: [userId], references: [id])
-  items    InvoiceItem[]
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  user        User?         @relation(fields: [userId], references: [id])
+  items       InvoiceItem[]
 }
 
-/**
- * ---------- ÍTEMS DE FACTURA -------
- */
+/* ---------- ÍTEMS DE FACTURA ------- */
 model InvoiceItem {
   id         Int  @id @default(autoincrement())
   invoiceId  Int

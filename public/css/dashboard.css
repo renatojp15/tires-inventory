@@ -47,3 +47,10 @@ h1 {
 .logout:hover {
   background-color: #a71d2a;
 }
+/* Campanita: hace el dropdown un poco más ancho y con scroll si hay muchas alertas */
+.notif-dropdown {
+  min-width: 18rem;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+.notif-dropdown li + li { border-top: 1px solid #e9ecef; }

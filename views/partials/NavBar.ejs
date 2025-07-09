@@ -1,0 +1,62 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm px-3">
+  <a class="navbar-brand fw-bold" href="/">Inventario Llantas</a>
+
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div id="mainNav" class="collapse navbar-collapse">
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item"><a class="nav-link" href="/newtires/list">Llantas nuevas</a></li>
+      <li class="nav-item"><a class="nav-link" href="/usedtires/list">Llantas usadas</a></li>
+      <li class="nav-item"><a class="nav-link" href="/invoices/list">Facturas</a></li>
+    </ul>
+
+    <!-- Campanita -->
+    <ul class="navbar-nav align-items-center me-3">
+      <li class="nav-item dropdown">
+        <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+          <i class="fas fa-bell fs-5"></i>
+          <% if (alerts.length) { %>
+            <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">
+              <%= alerts.length %>
+            </span>
+          <% } %>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end notif-dropdown">
+          <% if (!alerts.length) { %>
+            <li><span class="dropdown-item text-muted">Sin alertas</span></li>
+          <% } %>
+
+          <% alerts.forEach(alert => { %>
+            <li>
+              <form action="/alerts/<%= alert.id %>/resolve?_method=POST" method="POST" class="d-flex justify-content-between align-items-center px-3">
+                <span>
+                  <% const tire = alert.NewTire || alert.UsedTire; %>
+                  <strong><%= tire.brand %></strong> – <%= tire.size %>  
+                  <small class="text-danger">(Stock <%= alert.quantity %>)</small>
+                </span>
+                <button class="btn btn-sm btn-outline-success ms-2" title="Marcar revisada">
+                  <i class="fas fa-check"></i>
+                </button>
+              </form>
+            </li>
+          <% }) %>
+        </ul>
+      </li>
+
+      <!-- Usuario -->
+      <li class="nav-item dropdown ms-3">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle me-1"></i> <%= currentUser.name %>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><span class="dropdown-item disabled">Rol: <%= currentUser.role %></span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
