@@ -4,17 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registros de Llantas Nuevas</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <nav class="navbar">
-    <a href="/newtires/form" class="btn">Registrar Nueva Llanta</a>
-    <a href="/usedtires/list" class="btn btn-secondary">Ver Llantas Usadas</a>
-    <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
-  </nav>
+  <%- include('../partials/NavBar') %>
 
-  <form action="/newtires/export" method="GET" class="export-range">
+  <div class="container">
+    <h1 class="titulo">REGISTROS DE LLANTAS NUEVAS</h1>
+
+    <!-- 🔍 Barra de búsqueda -->
+    <form method="GET" action="/newtires/list" class="search-bar">
+      <input
+        type="text"
+        name="search"
+        placeholder="Buscar por marca, referencia o tipo..."
+        value="<%= typeof search !== 'undefined' ? search : '' %>"
+      />
+      <button type="submit">Buscar</button>
+    </form>
+
+    <!-- 📥 Rango de exportación -->
+    <form action="/newtires/export" method="GET" class="export-range">
       <label>Desde:
         <input type="date" name="from" required>
       </label>
@@ -27,28 +39,15 @@
       <p class="hint">Solo se permiten rangos de <strong>máximo 30 días</strong>.</p>
     </form>
 
-  <div class="container">
-    <h1>Registros de Llantas NUEVAS</h1>
-
-    <!-- 🕵️ Formulario de búsqueda -->
-    <form method="GET" action="/newtires/list" class="search-bar">
-      <input
-        type="text"
-        name="search"
-        placeholder="Buscar por marca, referencia o tipo..."
-        value="<%= typeof search !== 'undefined' ? search : '' %>"
-      />
-      <button type="submit">Buscar</button>
-    </form>
-
+    <!-- 📋 Lista agrupada por fecha -->
     <% if (Object.keys(tiresGrouped).length === 0) { %>
       <p>No hay llantas registradas.</p>
     <% } else { %>
       <% for (let fecha in tiresGrouped) { %>
-        <h3 style="margin-top: 30px; color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
+        <h3 class="fecha-titulo">
           📅 <%= fecha %>
         </h3>
-        <table>
+        <table class="table-style">
           <thead>
             <tr>
               <th>Marca</th>

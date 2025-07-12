@@ -3,20 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Lista de Usuarios</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <nav class="navbar">
-      <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
-    </nav>
+  <%- include('../partials/navbar') %>
+
   <div class="container">
-    <h1>📋 Lista de Usuarios</h1>
+    <h1 class="titulo">📋 Lista de Usuarios</h1>
+
+    <!-- 🔍 Buscador (opcional pero útil) -->
+    <form method="GET" action="/users/list" class="search-bar">
+      <input
+        type="text"
+        name="search"
+        placeholder="Buscar por nombre o usuario..."
+        value="<%= typeof search !== 'undefined' ? search : '' %>"
+      />
+      <button type="submit">Buscar</button>
+    </form>
 
     <% if (users.length === 0) { %>
       <p>No hay usuarios registrados.</p>
     <% } else { %>
-      <table class="table">
+      <table class="table-style">
         <thead>
           <tr>
             <th>ID</th>
@@ -36,10 +47,16 @@
               <td><%= user.role %></td>
               <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
               <td>
-                <a href="/users/<%= user.id %>/edit" class="btn btn-edit">✏️ Editar</a>
-                <form action="/users/<%= user.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
-                  <button type="submit" class="btn btn-delete">🗑️ Eliminar</button>
-                </form>
+                <div class="action-buttons">
+                  <a href="/users/<%= user.id %>/edit" class="btn-edit">
+                    <i class="fas fa-edit"></i> Editar
+                  </a>
+                  <form action="/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                    <button type="submit" class="btn-delete">
+                      <i class="fas fa-trash-alt"></i> Eliminar
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
           <% }); %>
@@ -47,7 +64,11 @@
       </table>
     <% } %>
 
-    <a href="/users/register" class="btn btn-create">➕ Crear nuevo usuario</a>
+    <div style="margin-top: 2rem;">
+      <a href="/users/register" class="btn btn-create">
+        <i class="fas fa-user-plus"></i> Crear nuevo usuario
+      </a>
+    </div>
   </div>
 </body>
 </html>

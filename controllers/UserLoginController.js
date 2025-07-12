@@ -47,7 +47,7 @@ const userLogin = {
       role: user.role
     };
 
-    res.redirect('/login/dashboard');
+    res.redirect('/users/dashboard');
   } 
   catch (error) {
     console.error('ERROR AL INICIAR SESIÓN:', error);

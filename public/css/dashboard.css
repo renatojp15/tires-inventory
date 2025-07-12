@@ -1,56 +1,88 @@
 .dashboard-container {
-  max-width: 900px;
-  margin: 50px auto;
-  background: white;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  text-align: center;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
-h1 {
-  font-size: 32px;
-  color: #333;
-  margin-bottom: 10px;
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 1rem;
+}
+
+.dashboard-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2d3748;
 }
 
 .username-info {
-  font-size: 16px;
-  margin-bottom: 30px;
-  color: #666;
+  font-size: 1rem;
+  color: #4a5568;
+  margin-top: 0.5rem;
 }
 
-.buttons-grid {
+.dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+}
+
+.dashboard-card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #2c5282;
 }
 
 .dashboard-btn {
-  background-color: #007bff;
+  display: block;
+  margin: 0.5rem auto;
+  background-color: #3182ce;
   color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
   text-decoration: none;
-  padding: 15px;
-  border-radius: 10px;
-  font-weight: bold;
-  transition: background 0.3s ease;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
 }
 
 .dashboard-btn:hover {
-  background-color: #0056b3;
+  background-color: #2563eb;
 }
 
-.logout {
-  background-color: #dc3545;
+.logout-card {
+  grid-column: span 2;
 }
 
-.logout:hover {
-  background-color: #a71d2a;
+.logout-btn {
+  background-color: #e53e3e;
 }
-/* Campanita: hace el dropdown un poco más ancho y con scroll si hay muchas alertas */
-.notif-dropdown {
-  min-width: 18rem;
-  max-height: 20rem;
-  overflow-y: auto;
+
+.logout-btn:hover {
+  background-color: #c53030;
 }
-.notif-dropdown li + li { border-top: 1px solid #e9ecef; }
+
+.footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 3rem;
+  padding-bottom: 2rem;
+}

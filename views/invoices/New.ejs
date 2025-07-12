@@ -3,64 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Crear Factura</title>
+
+  <!-- Estilos principales -->
   <link rel="stylesheet" href="/css/style.css">
-  <style>
-  .accordion-section {
-    margin-bottom: 20px;
-  }
+  <link rel="stylesheet" href="/css/invoices.css">
 
-  .accordion-toggle {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    cursor: pointer;
-    border: none;
-    width: 100%;
-    text-align: left;
-    font-size: 16px;
-    border-radius: 5px;
-  }
-
-  .accordion-content {
-    display: none;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-top: none;
-    border-radius: 0 0 5px 5px;
-    background-color: #f9f9f9;
-  }
-
-  .accordion-toggle.active + .accordion-content {
-    display: block;
-  }
-
-  .tire-item {
-    margin-bottom: 12px;
-  }
-</style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const toggles = document.querySelectorAll('.accordion-toggle');
-    toggles.forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('active');
-      });
-    });
-  });
-</script>
+  <!-- JS para acordeón -->
+  <script src="/js/invoices.js" defer></script>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="/invoices/list" class="btn-nav">← Ir a la Lista de Facturas</a>
-  </nav>
+  <%- include('../partials/navbar') %>
+
   <div class="container">
     <h1>Crear Factura</h1>
     <form action="/invoices/create" method="POST">
-
       <fieldset class="form-group">
         <legend>Datos del Cliente</legend>
+
         <label for="fullName">Nombre del Cliente:</label>
         <input type="text" name="fullName" id="fullName" required>
 
@@ -74,42 +35,43 @@
         <input type="text" name="address" id="address">
       </fieldset>
 
+      <!-- Llantas Nuevas -->
       <div class="accordion-section">
-  <button type="button" class="accordion-toggle">▶️ Llantas Nuevas</button>
-  <div class="accordion-content">
-    <% newTires.forEach((tire, index) => { %>
-      <div class="tire-item">
-        <label>
-          <input type="checkbox" name="items[<%= index %>][selected]" value="true">
-          <strong><%= tire.brand %></strong> | Ref: <%= tire.size %> | Tipo: <%= tire.type %> | $<%= tire.priceRetail %> (detal)
-        </label>
-        <input type="hidden" name="items[<%= index %>][tireId]" value="<%= tire.id %>">
-        <input type="hidden" name="items[<%= index %>][tireType]" value="new">
-        <input type="number" name="items[<%= index %>][quantity]" min="1" placeholder="Cantidad">
+        <button type="button" class="accordion-toggle">▶️ Llantas Nuevas</button>
+        <div class="accordion-content">
+          <% newTires.forEach((tire, index) => { %>
+            <div class="tire-item">
+              <label>
+                <input type="checkbox" name="items[<%= index %>][selected]" value="true">
+                <strong><%= tire.brand %></strong> | Ref: <%= tire.size %> | Tipo: <%= tire.type %> | $<%= tire.priceRetail %> (detal)
+              </label>
+              <input type="hidden" name="items[<%= index %>][tireId]" value="<%= tire.id %>">
+              <input type="hidden" name="items[<%= index %>][tireType]" value="new">
+              <input type="number" name="items[<%= index %>][quantity]" min="1" placeholder="Cantidad">
+            </div>
+          <% }) %>
+        </div>
       </div>
-    <% }) %>
-  </div>
-</div>
 
-<div class="accordion-section">
-  <button type="button" class="accordion-toggle">▶️ Llantas Usadas</button>
-  <div class="accordion-content">
-    <% usedTires.forEach((tire, index) => {
-      const idx = newTires.length + index;
-    %>
-      <div class="tire-item">
-        <label>
-          <input type="checkbox" name="items[<%= idx %>][selected]" value="true">
-          <strong><%= tire.brand %></strong> | Ref: <%= tire.size %> | Tipo: <%= tire.type %> | $<%= tire.priceRetail %> (detal)
-        </label>
-        <input type="hidden" name="items[<%= idx %>][tireId]" value="<%= tire.id %>">
-        <input type="hidden" name="items[<%= idx %>][tireType]" value="used">
-        <input type="number" name="items[<%= idx %>][quantity]" min="1" placeholder="Cantidad">
+      <!-- Llantas Usadas -->
+      <div class="accordion-section">
+        <button type="button" class="accordion-toggle">▶️ Llantas Usadas</button>
+        <div class="accordion-content">
+          <% usedTires.forEach((tire, index) => {
+              const idx = newTires.length + index;
+          %>
+            <div class="tire-item">
+              <label>
+                <input type="checkbox" name="items[<%= idx %>][selected]" value="true">
+                <strong><%= tire.brand %></strong> | Ref: <%= tire.size %> | Tipo: <%= tire.type %> | $<%= tire.priceRetail %> (detal)
+              </label>
+              <input type="hidden" name="items[<%= idx %>][tireId]" value="<%= tire.id %>">
+              <input type="hidden" name="items[<%= idx %>][tireType]" value="used">
+              <input type="number" name="items[<%= idx %>][quantity]" min="1" placeholder="Cantidad">
+            </div>
+          <% }) %>
+        </div>
       </div>
-    <% }) %>
-  </div>
-</div>
-
 
       <button type="submit" class="btn-submit">Generar Factura</button>
     </form>

@@ -1,134 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <meta charset="UTF-8" />
   <title>Dashboard</title>
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
   <link rel="stylesheet" href="/css/dashboard.css">
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
-  <style>
-    .dashboard-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      text-align: center;
-    }
-
-    h1 {
-      margin-top: 0;
-    }
-
-    .section {
-      margin-bottom: 40px;
-    }
-
-    .section-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 15px;
-      text-align: left;
-    }
-
-    .section-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-start;
-    }
-
-    .dashboard-btn {
-      padding: 12px 20px;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      transition: background-color 0.3s;
-    }
-
-    .dashboard-btn:hover {
-      background-color: #0056b3;
-    }
-
-    .logout {
-      background-color: #dc3545;
-    }
-
-    .logout:hover {
-      background-color: #a71d2a;
-    }
-
-    .logo-container {
-      margin-bottom: 30px;
-    }
-
-    .username-info {
-      font-size: 0.95rem;
-      color: #666;
-      margin-bottom: 20px;
-    }
-  </style>
 </head>
 <body>
+  <%- include('partials/navbar') %>
 
   <div class="dashboard-container">
-    <div class="logo-container">
-      <img src="/img/LOGO-SONIX-LTD.png" alt="Logo de SONIX LTD" style="width: 150px; height: auto;">
+    <div class="dashboard-header">
+      <img src="/img/LOGO-SONIX-LTD.png" alt="Logo SONIX LTD" class="logo">
+      <h1 class="dashboard-title">Bienvenido, <%= user.fullName %></h1>
+      <p class="username-info">Usuario: <strong><%= user.username %></strong> | Rol: <strong><%= user.role %></strong></p>
     </div>
 
-    <h1>Bienvenido, <%= user.fullName %></h1>
-    <p class="username-info">
-      Usuario: <strong><%= user.username %></strong> |
-      Rol: <strong><%= user.role %></strong>
-    </p>
+    <div class="dashboard-grid">
 
-    <!-- Sección Facturas -->
-    <div class="section">
-      <div class="section-title">Facturas</div>
-      <div class="section-buttons">
+      <div class="dashboard-card">
+        <h2><i class="fas fa-file-invoice"></i> Facturación</h2>
         <a href="/invoices/new" class="dashboard-btn">Crear Factura</a>
-        <a href="/invoices/list" class="dashboard-btn">Lista de Facturas</a>
+        <a href="/invoices/list" class="dashboard-btn">Ver Facturas</a>
       </div>
-    </div>
 
-    <!-- Sección Usuarios -->
-    <div class="section">
-      <div class="section-title">Usuarios</div>
-      <div class="section-buttons">
+      <div class="dashboard-card">
+        <h2><i class="fas fa-users-cog"></i> Usuarios</h2>
         <a href="/users/register" class="dashboard-btn">Crear Usuario</a>
         <a href="/users/list" class="dashboard-btn">Lista de Usuarios</a>
       </div>
-    </div>
 
-    <!-- Sección Inventario Llantas Nuevas -->
-    <div class="section">
-      <div class="section-title">Inventario Llantas Nuevas</div>
-      <div class="section-buttons">
-        <a href="/newtires/form" class="dashboard-btn">Registrar Llantas Nuevas</a>
-        <a href="/newtires/list" class="dashboard-btn">Lista Llantas Nuevas</a>
+      <div class="dashboard-card">
+        <h2><i class="fas fa-plus-circle"></i> Llantas Nuevas</h2>
+        <a href="/newtires/form" class="dashboard-btn">Registrar</a>
+        <a href="/newtires/list" class="dashboard-btn">Lista</a>
       </div>
-    </div>
 
-    <!-- Sección Inventario Llantas Usadas -->
-    <div class="section">
-      <div class="section-title">Inventario Llantas Usadas</div>
-      <div class="section-buttons">
-        <a href="/usedtires/form" class="dashboard-btn">Registrar Llantas Usadas</a>
-        <a href="/usedtires/list" class="dashboard-btn">Lista Llantas Usadas</a>
+      <div class="dashboard-card">
+        <h2><i class="fas fa-recycle"></i> Llantas Usadas</h2>
+        <a href="/usedtires/form" class="dashboard-btn">Registrar</a>
+        <a href="/usedtires/list" class="dashboard-btn">Lista</a>
       </div>
-    </div>
 
-    <!-- Sección Cierre -->
-    <div class="section">
-      <div class="section-buttons">
-        <a href="/login/logout" class="dashboard-btn logout">Cerrar Sesión</a>
+      <div class="dashboard-card logout-card">
+        <a href="/login/logout" class="dashboard-btn logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
       </div>
+
     </div>
   </div>
 
-  <footer style="text-align: center; font-size: 0.9rem; margin-top: 30px; color: #666;">
+  <footer class="footer">
     Creado por <strong>BadNerdTechnology</strong> · Renato Johnson Preciado · 62870992 · renatoj.p@outlook.com
   </footer>
 </body>

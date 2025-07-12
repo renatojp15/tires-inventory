@@ -4,7 +4,7 @@ const usedTiresController = require('../controllers/UsedTiresController');
 const isAuthenticated = require('../middlewares/authMiddleware');
 const isAdmin = require('../middlewares/isAdmin');
 
-router.get('/form', isAuthenticated, usedTiresController.UsedTiresForm);
+router.get('/form', usedTiresController.UsedTiresForm);
 router.post('/create', isAuthenticated, usedTiresController.createUsedTires);
 router.get('/list', isAuthenticated, usedTiresController.usedTiresList);
 router.get('/edit/:id', isAuthenticated, usedTiresController.editUsedTiresForm);

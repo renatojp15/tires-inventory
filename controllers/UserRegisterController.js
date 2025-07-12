@@ -5,16 +5,16 @@ const saltRounds = 10;
 
 const userRegister = {
   // Mostrar formulario de registro
-  userRegisterForm: (req, res) => {
+  userRegisterForm: async (req, res) => {
     try {
-      res.render('users/UserRegisterForm');
+      const roles = await prisma.role.findMany();
+      res.render('users/UserRegisterForm', { roles });
     } catch (error) {
       console.error('ERROR AL CARGAR EL FORMULARIO: ', error);
       res.status(500).send('ERROR AL CARGAR EL FORMULARIO');
     }
   },
 
-  // Crear usuario
   // Crear usuario
 createUser: async (req, res) => {
   let { username, fullName, role, password, confirmPassword } = req.body;

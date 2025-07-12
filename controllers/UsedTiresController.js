@@ -3,15 +3,22 @@ const prisma = new PrismaClient();
 const ExcelJS = require('exceljs');
 
 const usedTiresController = {
-    UsedTiresForm: (req, res) => {
-        try{
-            res.render('usedTires/UsedTiresForm')
-        }
-        catch(error){
+    UsedTiresForm: async (req, res) => {
+        try {
+            const brands = await prisma.brand.findMany();
+            const types = await prisma.tireType.findMany();
+            const locations = await prisma.location.findMany();
+
+            res.render('usedTires/UsedTiresForm', {
+            brands,
+            types,
+            locations
+            });
+        } catch (error) {
             console.error('ERROR AL CARGAR EL FORMULARIO: ', error);
             res.status(500).send('ERROR AL CARGAR EL FORMULARIO');
         }
-    },
+},
     createUsedTires: async(req, res) => {
         try{
             const {brand, size, type, weight, quantity, priceUnit, priceWholesale, priceRetail, location} = req.body;

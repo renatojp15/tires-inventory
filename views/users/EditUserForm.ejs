@@ -3,40 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
-  <title>Registro de Usuario</title>
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <title>Editar Usuario</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="form-container">
-    <h1>ACTUALIZAR DATOS DE USUARIO</h1>
-    <form action="/users/<%=user.id%>/edit" method="POST">
+  <%- include('../partials/navbar') %>
+  <div class="container">
+    <h1 class="titulo">ACTUALIZAR DATOS DE USUARIO</h1>
+    
+    <form action="/users/<%= user.id %>/edit" method="POST">
       
       <div class="form-group">
         <label for="username">Nombre de Usuario</label>
-        <input type="text" id="username" name="username" value="<%=user.username%>" required>
+        <input type="text" id="username" name="username" value="<%= user.username %>" required>
       </div>
 
       <div class="form-group">
         <label for="fullName">Nombre Completo</label>
-        <input type="text" id="fullName" name="fullName" value="<%=user.fullName%>" required>
+        <input type="text" id="fullName" name="fullName" value="<%= user.fullName %>" required>
       </div>
 
       <div class="form-group">
-        <label for="role">Rol del Usuario</label>
-        <input type="text" id="role" name="role" value="<%=user.role%>" required>
+        <label for="roleId">Rol del Usuario</label>
+        <select id="roleId" name="roleId" required>
+          <% roles.forEach(role => { %>
+            <option value="<%= role.id %>" <%= role.id === user.roleId ? "selected" : "" %>><%= role.name %></option>
+          <% }) %>
+        </select>
       </div>
 
       <div class="form-group">
-        <label for="password">Ingrese La Nueva Contraseña</label>
+        <label for="password">Nueva Contraseña (opcional)</label>
         <input type="password" id="password" name="password" placeholder="Dejar en blanco para mantener la actual">
       </div>
 
       <div class="form-group">
-        <label for="confirmPassword">Ingrese Nuevamente La Nueva Contraseña</label>
+        <label for="confirmPassword">Confirmar Nueva Contraseña</label>
         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repetir contraseña nueva">
       </div>
 
-      <button type="submit">ACTUALIZAR USUARIO</button>
+      <div class="form-actions">
+        <button type="submit">ACTUALIZAR USUARIO</button>
+      </div>
     </form>
   </div>
 </body>

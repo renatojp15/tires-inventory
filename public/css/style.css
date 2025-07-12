@@ -1,410 +1,335 @@
-/*----------------------------------------- ESTILOS GENERALES ------------------------------------------------*/
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f9f9f9;
-  padding: 20px;
-}
-/*----------------------------------------- FIN ESTILOS GENERALES ------------------------------------------------*/
-
-/* ---------------------------------------------- ESTILOS DE FORMULARIOS --------------------------------------------------- */
-
-.form-container {
-  background-color: #ffffff;
-  max-width: 550px;
-  margin: 40px auto;
-  padding: 30px 25px;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f4f8;
+  color: #2d3748;
+  line-height: 1.5;
+  padding-bottom: 2rem;
 }
 
-.form-container h1 {
+/* ESTILOS DEL NAVBAR */
+nav.navbar {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem 2rem;
+}
+
+.nav-container {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2d3748;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: #3182ce;
+  text-decoration: none;
+  font-size: 1.2rem;
+  position: relative;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* Notificación Badge */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: red;
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 50%;
+}
+
+/* Usuario */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.username {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  background-color: green;
+  border-radius: 50%;
+}
+/* FIN DE ESTILOS DEL NAVBAR */
+
+/* ESTILOS DE LOS FORMULARIOS */
+.container {
+  max-width: 768px;
+  margin: 3rem auto;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.titulo {
   text-align: center;
-  color: #2c3e50;
-  margin-bottom: 25px;
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
 }
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 1rem;
 }
 
-input[type="text"],
-input[type="number"],
-input[type="password"] {
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+input,
+select {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.3s ease;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 5px;
+  font-size: 1rem;
 }
 
-input[type="text"]:focus,
-input[type="number"]:focus,
-input[type="password"]:focus {
-  border-color: #3498db;
+input:focus,
+select:focus {
   outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 1px #3182ce;
 }
 
-button,
-input[type="submit"] {
-  padding: 12px;
-  background-color: #2ecc71;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-/* Solo aplicar width: 100% a botones dentro de formularios específicos */
-.form-container button,
-.invoice-container button {
-  width: 100%;
-}
-/* ------------------------------------------ FIN DE ESTILOS DE FORMULARIOS ---------------------------------- */
-
-/* ------------------------------- ESTILOS PARA LISTAS O TABLAS DE LLANTAS REGISTRADAS ---------------------------- */
-.container {
-  max-width: 1200px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-.container h1 {
+.form-actions {
   text-align: center;
-  margin-bottom: 20px;
+  margin-top: 2rem;
 }
-table {
+
+button {
+  background-color: #3182ce;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #2563eb;
+}
+/* FIN DE ESTILOS DE LOS FORMULARIOS */
+
+/* ESTILOS DE LAS TABLAS Y LISTAS */
+.table-style {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
 }
-thead {
-  background-color: #333;
-  color: white;
+
+.table-style th,
+.table-style td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
 }
-th, td {
-  padding: 12px;
-  border: 1px solid #ccc;
-  text-align: center;
+
+.table-style th {
+  background-color: #f7fafc;
+  font-weight: bold;
+  color: #4a5568;
 }
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+
+.table-style tbody tr:hover {
+  background-color: #f0f4f8;
 }
-.action-buttons {
+
+/* ========== BÚSQUEDA ========== */
+.search-bar {
   display: flex;
-  gap: 5px;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.search-bar input {
+  flex: 1;
+}
+
+.search-bar button {
+  background-color: #3182ce;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #2563eb;
+}
+
+/* ========== EXPORTACIÓN ========== */
+.export-range {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
-.action-buttons a,
-.action-buttons button {
-  display: inline-block;
-  padding: 6px 12px;
-  font-size: 0.9rem;
+
+.export-range label {
+  font-weight: bold;
+}
+
+.export-range input[type="date"] {
+  padding: 0.4rem;
   border-radius: 4px;
-  text-decoration: none;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-.btn-edit {
-  background-color: #007bff;
-}
-.btn-edit:hover {
-  background-color: #0056b3;
-}
-.btn-delete {
-  background-color: #dc3545;
-}
-.btn-delete:hover {
-  background-color: #c82333;
-}
-/* ------------------------------- FIN ESTILOS PARA LISTAS O TABLAS DE LLANTAS REGISTRADAS --------------------- */
-
-/* ------------------------------------ ESTILOS DEL SISTEMA DE FACTURACIÓN -------------------------------------- */
-.tire-select {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 5px;
-}
-
-.tire-select div {
-  margin: 8px 0;
-}
-
-.tire-select input[type="number"] {
-  width: 80px;
-  margin-left: 10px;
-}
-
-.invoice-container {
-  background: #fff;
-  padding: 20px;
-  max-width: 800px;
-  margin: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.invoice-container h1,
-.invoice-container h3,
-.invoice-container legend {
-  color: #333;
-}
-
-form label {
-  display: block;
-  margin-top: 10px;
-}
-
-fieldset {
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.tire-item {
-  margin-bottom: 10px;
-}
-
-.btn-submit,
-.btn {
-  padding: 10px 20px;
-  color: white;
-  text-decoration: none;
-  border: none;
-  border-radius: 5px;
-  margin-top: 15px;
-  cursor: pointer;
-}
-/* ------------------------------------ FIN ESTILOS DEL SISTEMA DE FACTURACIÓN -------------------------------------- */
-
-/* ------------------------------- BOTONES PERSONALIZADOS POR FUNCIÓN ----------------------------------------- */
-.btn-create {
-  background-color: #007bff;
-}
-
-.btn-create:hover {
-  background-color: #0056b3;
-}
-
-.btn-print {
-  background-color: #6c757d;
-}
-
-.btn-print:hover {
-  background-color: #5a6268;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-}
-
-.btn-delete:hover {
-  background-color: #c82333;
+  border: 1px solid #cbd5e0;
 }
 
 .btn-excel {
-  background-color: #1d6f42;
+  background-color: #2f855a;
   color: white;
-  padding: 8px 15px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   border: none;
-  border-radius: 5px;
-  text-decoration: none;
-  font-weight: bold;
   cursor: pointer;
 }
 
 .btn-excel:hover {
-  background-color: #155c37;
-}
-/* ------------------------------- FIN ESTILOS BOTONES PERSONALIZADOS POR FUNCIÓN -------------------------------- */
-
-/* ----------------------------- ESTILOS DE TABLAS DE FACTURAS --------------------------------------------- */
-
-.invoice-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+  background-color: #276749;
 }
 
-.invoice-table th,
-.invoice-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin-left: 0.5rem;
 }
 
-.invoice-total {
-  text-align: right;
-  font-size: 18px;
-  margin-top: 15px;
+/* ========== ACCIONES ========== */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.invoice-footer {
-  margin-top: 30px;
+.btn-edit {
+  background-color: #4299e1;
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.btn-edit:hover {
+  background-color: #2b6cb0;
+}
+
+.btn-delete {
+  background-color: #e53e3e;
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background-color: #c53030;
+}
+
+/* ========== TÍTULOS ========== */
+.fecha-titulo {
+  margin-top: 2rem;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 5px;
+}
+/* Encabezado de fecha agrupada */
+.table-date-row td {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  color: #2d3748;
+}
+/* FIN DE ESTILOS DE LAS TABLAS Y LISTAS */
+
+/* ESTILOS DEL LOGIN */
+/* ========== LOGIN ========== */
+.login-container {
+  max-width: 420px;
+  margin: 4rem auto;
+  padding: 2.5rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-.invoice-footer .buttons {
-  margin-top: 15px;
-}
-/* ----------------------------- FIN ESTILOS DE TABLAS DE FACTURAS --------------------------------------------- */
-
-@media print {
-  body {
-    background: white;
-  }
-
-  .no-print {
-    display: none !important;
-  }
-
-  .btn,
-  .btn-secondary {
-    display: none;
-  }
+.logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: 1.5rem;
 }
 
-.invoice-logo {
-  text-align: right;
-  margin-bottom: 10px;
-}
-
-/* ------------------------------------------- ESTILOS NAVBAR ---------------------------------------------- */
-.navbar {
-  background-color: #f4f4f4;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ccc;
-  display: flex;
-  justify-content: flex-start;
-  gap: 15px;
-}
-
-.navbar .btn {
-  text-decoration: none;
-  background-color: #28a745;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.navbar .btn:hover {
-  background-color: #218838;
-}
-/* ----------------------------------------- FIN ESTILOS NAVBAR ---------------------------------------------- */
-
-/* ---------------------------------- NAVBAR BOTÓN REGRESAR A LISTAS ---------------------------------------- */
-.btn-nav {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 14px;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.btn-nav:hover {
-  background-color: #0056b3;
-}
-/* -------------------------------- FIN NAVBAR BOTÓN REGRESAR A LISTAS ---------------------------------------- */
-
-/* ------------------------------- ESTILOS EN BOTONES DE FACTURA -------------------------------- */
-.btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 15px;
-}
-
-.btn-group .btn {
-  flex: 1 1 auto;
-  max-width: 200px;
-}
-/* ------------------------------- FIN ESTILOS EN BOTONES DE FACTURA -------------------------------- */
-
-/* ---------------------------------- ESTILOS BOTÓN MENÚ PRINCIPAL ---------------------------------- */
-.navbar .btn-menu {
-  background-color: #ff9800 !important;
-  color: white !important;
-}
-
-.navbar .btn-menu:hover {
-  background-color: #e68900 !important;
-}
-/* ---------------------------------- FIN ESTILOS BOTÓN MENÚ PRINCIPAL ---------------------------------- */
-
-/* --------------------------------- ESTILOS DE LA BARRA DE BUSQUEDA ----------------------------- */
-.search-bar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-bar input[type="text"] {
-  flex: 1;
-  padding: 10px 12px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  height: 42px;
-}
-
-.search-bar button {
-  width: auto;
-  padding: 10px 16px;
-  font-size: 16px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  height: 42px;
-}
-
-.search-bar button:hover {
-  background-color: #0056b3;
-}
-/* ------------------------------- FIN ESTILOS DE LA BARRA DE BUSQUEDA ----------------------------- */
-
-/* --------------------------- ESTILOS DE RANGO PARA EXPORTAR A EXCEL ---------------------------- */
-.export-range {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 25px;
-  align-items: center;
-}
-
-.export-range input[type="date"] {
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.export-range .hint {
-  flex-basis: 100%;
-  font-size: 0.85rem;
+/* Footer para login */
+.login-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 2rem;
   color: #666;
 }
-/* ------------------------- FIN ESTILOS DE RANGO PARA EXPORTAR A EXCEL ---------------------------- */
+/* FIN DE ESTILOS DEL LOGIN */
 
-/* Campanita: hace el dropdown un poco más ancho y con scroll si hay muchas alertas */
-.notif-dropdown {
-  min-width: 18rem;
-  max-height: 20rem;
-  overflow-y: auto;
+/* ESTILOS PARA EL BOTÓN DE CREAR USUARIO */
+.btn-create {
+  background-color: #38a169; 
+  color: white;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
-.notif-dropdown li + li { border-top: 1px solid #e9ecef; }
+
+.btn-create:hover {
+  background-color: #2f855a;
+}
+/* FIN DE ESTILOS PARA EL BOTÓN DE CREAR USUARIO */

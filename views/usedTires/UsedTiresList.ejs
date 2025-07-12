@@ -4,17 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registros de Llantas Usadas</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <nav class="navbar">
-      <a href="/usedtires/form" class="btn">Registrar Llanta Usada</a>
-      <a href="/newtires/list" class="btn btn-secondary">Ver Llantas Nuevas</a>
-      <a href="/login/dashboard" class="btn btn-menu">Ir al Menú Principal</a>
-  </nav>
+  <%- include('../partials/navbar') %>
 
-  <form action="/usedtires/export" method="GET" class="export-range">
+  <div class="container">
+    <h1 class="titulo">REGISTROS DE LLANTAS USADAS</h1>
+
+    <!-- 🔍 Barra de búsqueda -->
+    <form method="GET" action="/usedtires/list" class="search-bar">
+      <input
+        type="text"
+        name="search"
+        placeholder="Buscar por marca, referencia o tipo..."
+        value="<%= typeof search !== 'undefined' ? search : '' %>"
+      />
+      <button type="submit">Buscar</button>
+    </form>
+
+    <!-- 📥 Rango de exportación -->
+    <form action="/usedtires/export" method="GET" class="export-range">
       <label>Desde:
         <input type="date" name="from" required>
       </label>
@@ -27,66 +39,53 @@
       <p class="hint">Solo se permiten rangos de <strong>máximo 30 días</strong>.</p>
     </form>
 
-  <div class="container">
-    <h1>Registros de Llantas USADAS</h1>
-
-    <!-- 🕵️ Formulario de búsqueda -->
-    <form method="GET" action="/usedtires/list" class="search-bar">
-      <input
-        type="text"
-        name="search"
-        placeholder="Buscar por marca, referencia o tipo..."
-        value="<%= typeof search !== 'undefined' ? search : '' %>"
-      />
-      <button type="submit">Buscar</button>
-    </form>
-
+    <!-- 📋 Lista agrupada por fecha -->
     <% if (Object.keys(tiresGrouped).length === 0) { %>
-  <p>No hay llantas registradas.</p>
-<% } else { %>
-  <% for (let fecha in tiresGrouped) { %>
-    <h3 style="margin-top: 30px; color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
-      📅 <%= fecha %>
-    </h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Marca</th>
-          <th>Referencia</th>
-          <th>Tipo de Vehículo</th>
-          <th>Peso</th>
-          <th>Cantidad</th>
-          <th>Precio Unitario</th>
-          <th>Precio Mayorista</th>
-          <th>Precio Detal</th>
-          <th>Ubicación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% tiresGrouped[fecha].forEach(tire => { %>
-          <tr>
-            <td><%= tire.brand %></td>
-            <td><%= tire.size %></td>
-            <td><%= tire.type %></td>
-            <td><%= tire.weight %></td>
-            <td><%= tire.quantity %></td>
-            <td><%= tire.priceUnit.toFixed(2) %> USD</td>
-            <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
-            <td><%= tire.priceRetail.toFixed(2) %> USD</td>
-            <td><%= tire.location %></td>
-            <td class="action-buttons">
-              <a href="/usedtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
-              <form action="/usedtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
-                <button type="submit" class="btn-delete">Eliminar</button>
-              </form>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  <% } %>
-<% } %>
+      <p>No hay llantas registradas.</p>
+    <% } else { %>
+      <% for (let fecha in tiresGrouped) { %>
+        <h3 class="fecha-titulo">
+          📅 <%= fecha %>
+        </h3>
+        <table class="table-style">
+          <thead>
+            <tr>
+              <th>Marca</th>
+              <th>Referencia</th>
+              <th>Tipo de Vehículo</th>
+              <th>Peso</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Precio Mayorista</th>
+              <th>Precio Detal</th>
+              <th>Ubicación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% tiresGrouped[fecha].forEach(tire => { %>
+              <tr>
+                <td><%= tire.brand %></td>
+                <td><%= tire.size %></td>
+                <td><%= tire.type %></td>
+                <td><%= tire.weight %></td>
+                <td><%= tire.quantity %></td>
+                <td><%= tire.priceUnit.toFixed(2) %> USD</td>
+                <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
+                <td><%= tire.priceRetail.toFixed(2) %> USD</td>
+                <td><%= tire.location %></td>
+                <td class="action-buttons">
+                  <a href="/usedtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
+                  <form action="/usedtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
+                    <button type="submit" class="btn-delete">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    <% } %>
   </div>
 </body>
 </html>

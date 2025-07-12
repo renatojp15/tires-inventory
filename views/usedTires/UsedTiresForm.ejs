@@ -1,68 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registrar Llantas Usadas</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <nav class="navbar">
-    <a href="/usedtires/list" class="btn-nav">← Ir a la Lista de Llantas Usadas</a>
-  </nav>
 
-  <div class="form-container">
-    <h1>Registro de Llantas USADAS</h1>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <h1 class="titulo">REGISTRO DE LLANTAS USADAS</h1>
+
     <form action="/usedtires/create" method="POST">
 
+      <!-- Marca -->
       <div class="form-group">
-        <label for="brand">Marca</label>
-        <input type="text" id="brand" name="brand" placeholder="Ej: Michelin" required>
+        <label for="brandId">Marca</label>
+        <select id="brandId" name="brandId" required>
+          <option value="">Seleccione una marca</option>
+          <% brands.forEach(brand => { %>
+            <option value="<%= brand.id %>"><%= brand.name %></option>
+          <% }) %>
+        </select>
       </div>
 
+      <!-- Referencia -->
       <div class="form-group">
         <label for="size">Referencia</label>
-        <input type="text" id="size" name="size" placeholder="Ej: 195/65 R15" required>
+        <input type="text" id="size" name="size" placeholder="Ej: 205/55 R16" required>
       </div>
 
+      <!-- Tipo de Vehículo -->
       <div class="form-group">
-        <label for="type">Tipo de Vehículo</label>
-        <input type="text" id="type" name="type" placeholder="Ej: Auto, Moto, Tractor" required>
+        <label for="typeId">Tipo de Vehículo</label>
+        <select id="typeId" name="typeId" required>
+          <option value="">Seleccione un tipo</option>
+          <% types.forEach(type => { %>
+            <option value="<%= type.id %>"><%= type.name %></option>
+          <% }) %>
+        </select>
       </div>
 
+      <!-- Peso -->
       <div class="form-group">
         <label for="weight">Peso (kg)</label>
-        <input type="number" step="0.01" id="weight" name="weight" placeholder="Ej: 8.5" required>
+        <input type="number" step="0.01" id="weight" name="weight" placeholder="Ej: 9.5" required>
       </div>
 
+      <!-- Cantidad -->
       <div class="form-group">
         <label for="quantity">Cantidad</label>
-        <input type="number" id="quantity" name="quantity" placeholder="Ej: 6" required>
+        <input type="number" id="quantity" name="quantity" placeholder="Ej: 10" required>
       </div>
 
+      <!-- Ubicación -->
       <div class="form-group">
-        <label for="location">Ubicación</label>
-        <input type="text" id="location" name="location" placeholder="Ej: Bodega B-2">
+        <label for="locationId">Ubicación</label>
+        <select id="locationId" name="locationId">
+          <option value="">Seleccione una ubicación</option>
+          <% locations.forEach(location => { %>
+            <option value="<%= location.id %>"><%= location.name %></option>
+          <% }) %>
+        </select>
       </div>
 
+      <!-- Precio Unitario -->
       <div class="form-group">
         <label for="priceUnit">Precio Unitario</label>
-        <input type="number" step="0.01" id="priceUnit" name="priceUnit" placeholder="Ej: 10.00">
+        <input type="number" step="0.01" id="priceUnit" name="priceUnit" placeholder="Ej: 20.00">
       </div>
 
+      <!-- Precio al Detal -->
       <div class="form-group">
         <label for="priceRetail">Precio al Detal</label>
-        <input type="number" step="0.01" id="priceRetail" name="priceRetail" placeholder="Ej: 12.00">
+        <input type="number" step="0.01" id="priceRetail" name="priceRetail" placeholder="Ej: 25.00">
       </div>
 
+      <!-- Precio al Por Mayor -->
       <div class="form-group">
         <label for="priceWholesale">Precio al Por Mayor</label>
-        <input type="number" step="0.01" id="priceWholesale" name="priceWholesale" placeholder="Ej: 10.50">
+        <input type="number" step="0.01" id="priceWholesale" name="priceWholesale" placeholder="Ej: 22.50">
       </div>
 
-      <input type="hidden" name="condition" value="Usada" />
+      <!-- Hidden -->
+      <input type="hidden" name="condition" value="Nueva" />
 
-      <button type="submit">REGISTRAR LLANTA</button>
+      <div class="form-actions">
+        <button type="submit">REGISTRAR LLANTA</button>
+      </div>
     </form>
   </div>
 </body>

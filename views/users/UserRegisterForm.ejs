@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registro de Usuario</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="form-container">
-    <h1>REGISTRO DE USUARIO</h1>
+  <%- include('../partials/navbar') %>
+  <div class="container">
+    <h1 class="titulo">REGISTRO DE USUARIO</h1>
+    
     <form action="/users/create" method="POST">
       
       <div class="form-group">
@@ -22,8 +25,13 @@
       </div>
 
       <div class="form-group">
-        <label for="role">Rol del Usuario</label>
-        <input type="text" id="role" name="role" placeholder="Ej: admin, vendedor" required>
+        <label for="roleId">Rol del Usuario</label>
+        <select id="roleId" name="roleId" required>
+          <option value="">Seleccione un rol</option>
+          <% roles.forEach(role => { %>
+            <option value="<%= role.id %>"><%= role.name %></option>
+          <% }) %>
+        </select>
       </div>
 
       <div class="form-group">
@@ -36,7 +44,9 @@
         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repite la contraseña" required>
       </div>
 
-      <button type="submit">REGISTRAR USUARIO</button>
+      <div class="form-actions">
+        <button type="submit">REGISTRAR USUARIO</button>
+      </div>
     </form>
   </div>
 </body>
