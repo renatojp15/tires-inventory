@@ -18,7 +18,11 @@
 
       <div class="form-group">
         <label for="brand">Marca</label>
-        <input type="text" id="brand" name="brand" value="<%= tire.brand %>" required>
+        <select id="brand" name="brand" required>
+          <% brands.forEach(b => { %>
+            <option value="<%= b.id %>" <%= b.id === tire.brand ? 'selected' : '' %>><%= b.name %></option>
+          <% }) %>
+        </select>
       </div>
 
       <div class="form-group">
@@ -28,7 +32,11 @@
 
       <div class="form-group">
         <label for="type">Tipo de Vehículo</label>
-        <input type="text" id="type" name="type" value="<%= tire.type %>" required>
+        <select id="type" name="type" required>
+          <% types.forEach(t => { %>
+            <option value="<%= t.id %>" <%= t.id === tire.type ? 'selected' : '' %>><%= t.name %></option>
+          <% }) %>
+        </select>
       </div>
 
       <div class="form-group">
@@ -43,7 +51,11 @@
 
       <div class="form-group">
         <label for="location">Ubicación</label>
-        <input type="text" id="location" name="location" value="<%= tire.location %>">
+        <select id="location" name="location" required>
+          <% locations.forEach(l => { %>
+            <option value="<%= l.id %>" <%= l.id === tire.location ? 'selected' : '' %>><%= l.name %></option>
+          <% }) %>
+        </select>
       </div>
 
       <div class="form-group">
@@ -61,7 +73,7 @@
         <input type="number" step="0.01" id="priceWholesale" name="priceWholesale" value="<%= tire.priceWholesale %>">
       </div>
 
-      <input type="hidden" name="condition" value="Nueva" />
+      <input type="hidden" name="condition" value="Usada" />
 
       <div class="form-actions">
         <button type="submit">Actualizar Llanta</button>

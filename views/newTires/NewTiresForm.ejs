@@ -19,8 +19,8 @@
 
       <!-- Marca -->
       <div class="form-group">
-        <label for="brandId">Marca</label>
-        <select id="brandId" name="brandId" required>
+        <label for="brand">Marca</label>
+        <select id="brand" name="brand" required>
           <option value="">Seleccione una marca</option>
           <% brands.forEach(brand => { %>
             <option value="<%= brand.id %>"><%= brand.name %></option>
@@ -36,8 +36,8 @@
 
       <!-- Tipo de Vehículo -->
       <div class="form-group">
-        <label for="typeId">Tipo de Vehículo</label>
-        <select id="typeId" name="typeId" required>
+        <label for="type">Tipo de Vehículo</label>
+        <select id="type" name="type" required>
           <option value="">Seleccione un tipo</option>
           <% types.forEach(type => { %>
             <option value="<%= type.id %>"><%= type.name %></option>
@@ -59,8 +59,8 @@
 
       <!-- Ubicación -->
       <div class="form-group">
-        <label for="locationId">Ubicación</label>
-        <select id="locationId" name="locationId">
+        <label for="location">Ubicación</label>
+        <select id="location" name="location">
           <option value="">Seleccione una ubicación</option>
           <% locations.forEach(location => { %>
             <option value="<%= location.id %>"><%= location.name %></option>

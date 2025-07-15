@@ -64,16 +64,16 @@
           </thead>
           <tbody>
             <% tiresGrouped[fecha].forEach(tire => { %>
-              <tr>
-                <td><%= tire.brand %></td>
+              <tr class="<%= tire.quantity <= tire.minStock ? 'stock-bajo' : '' %>"></tr>
+                <td><%= tire.brand.name %></td>
                 <td><%= tire.size %></td>
-                <td><%= tire.type %></td>
+                <td><%= tire.type.name %></td>
                 <td><%= tire.weight %></td>
                 <td><%= tire.quantity %></td>
                 <td><%= tire.priceUnit.toFixed(2) %> USD</td>
                 <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
                 <td><%= tire.priceRetail.toFixed(2) %> USD</td>
-                <td><%= tire.location %></td>
+                <td><%= tire.location.name %></td>
                 <td class="action-buttons">
                   <a href="/usedtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
                   <form action="/usedtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">

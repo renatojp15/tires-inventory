@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="nav-container">
     <!-- Logo o nombre del sistema -->
-    <a href="/" class="logo">Inventario de Llantas</a>
+    <a href="/users/dashboard" class="logo">SONIX LTD</a>
 
     <div class="nav-links">
       <!-- Notificaciones de stock -->
@@ -30,3 +30,27 @@
     </div>
   </div>
 </nav>
+
+<% if (alerts && alerts.length > 0) { %>
+  <!-- 🔔 Notificación flotante de alerta de stock -->
+  <div id="stock-toast" class="stock-toast">
+    🔔 ¡Tienes <strong><%= alerts.length %></strong> alerta<%= alerts.length > 1 ? 's' : '' %> de stock bajo!
+    <a href="/alerts" class="ver-alertas">Ver alertas</a>
+  </div>
+
+  <!-- 🔊 Sonido de alerta (solo si no ha sonado antes en la sesión) -->
+  <script>
+    // Verificamos si ya se reprodujo la alerta en esta sesión
+    if (!sessionStorage.getItem('alertSoundPlayed')) {
+      const audio = new Audio('/sounds/alert.mp3');
+      audio.play().catch(() => {}); // Evita errores si el navegador bloquea
+      sessionStorage.setItem('alertSoundPlayed', 'true');
+    }
+
+    // Ocultar automáticamente el toast después de 5 segundos
+    setTimeout(() => {
+      const toast = document.getElementById('stock-toast');
+      if (toast) toast.remove();
+    }, 5000);
+  </script>
+<% } %>

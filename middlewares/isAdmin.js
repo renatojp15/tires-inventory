@@ -1,9 +1,15 @@
 function isAdmin(req, res, next) {
-  if (req.session.user && req.session.user.role === 'admin') {
-    next(); // ✅ Usuario autenticado y con rol admin
-  } else {
-    res.status(403).send('Acceso denegado: solo para administradores');
+  const user = req.session?.user;
+
+  if (user && user.role === 'Administrador') {
+    return next();
   }
+
+  // Opción: puedes redirigir a una página de acceso denegado amigable
+  return res.status(403).render('errors/403', {
+    message: 'Acceso denegado: solo para administradores',
+    user
+  });
 }
 
 module.exports = isAdmin;

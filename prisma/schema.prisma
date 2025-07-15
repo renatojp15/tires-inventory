@@ -63,6 +63,7 @@ model NewTire {
 
   invoiceItems   InvoiceItem[]   @relation("NewTireToInvoiceItem")
   quotationItems QuotationItem[] @relation("NewTireToQuotationItem")
+  alerts         StockAlert[]    @relation("NewTireStockAlert")  // ← relación con StockAlert
 }
 
 /* ---------- LLANTAS USADAS ---------- */
@@ -87,16 +88,21 @@ model UsedTire {
 
   invoiceItems   InvoiceItem[]   @relation("UsedTireToInvoiceItem")
   quotationItems QuotationItem[] @relation("UsedTireToQuotationItem")
+  alerts         StockAlert[]    @relation("UsedTireStockAlert")  // ← relación con StockAlert
 }
 
 /* ---------- ALERTAS DE STOCK ---------- */
 model StockAlert {
   id         Int           @id @default(autoincrement())
   tireType   TireCategory
-  tireId     Int
+  newTireId  Int?          // ← llanta nueva
+  usedTireId Int?          // ← llanta usada
   quantity   Int
   createdAt  DateTime      @default(now())
   resolved   Boolean       @default(false)
+
+  newTire    NewTire?      @relation("NewTireStockAlert", fields: [newTireId], references: [id])
+  usedTire   UsedTire?     @relation("UsedTireStockAlert", fields: [usedTireId], references: [id])
 }
 
 /* ---------- CLIENTES ---------- */

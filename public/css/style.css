@@ -85,12 +85,16 @@ nav.navbar {
 
 /* ESTILOS DE LOS FORMULARIOS */
 .container {
-  max-width: 768px;
-  margin: 3rem auto;
-  background-color: white;
+  background-color: #ffffff;
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* Por si hay muchas columnas */
 }
 
 .titulo {
@@ -283,6 +287,18 @@ button:hover {
   font-weight: bold;
   color: #2d3748;
 }
+.stock-bajo {
+  border: 2px solid red;
+  background-color: #ffe5e5;
+}
+
+.table-container {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
 /* FIN DE ESTILOS DE LAS TABLAS Y LISTAS */
 
 /* ESTILOS DEL LOGIN */
@@ -333,3 +349,32 @@ button:hover {
   background-color: #2f855a;
 }
 /* FIN DE ESTILOS PARA EL BOTÓN DE CREAR USUARIO */
+
+/* ESTILOS DE NOTIFICACIONES FLOTANTES PARA ALERTAS */
+/* 🔔 Toast flotante de alerta de stock */
+.stock-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #f56565;
+  color: white;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  z-index: 9999;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.stock-toast .ver-alertas {
+  display: block;
+  margin-top: 0.5rem;
+  color: #fff;
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* FIN DE ESTILOS DE NOTIFICACIONES FLOTANTES PARA ALERTAS */

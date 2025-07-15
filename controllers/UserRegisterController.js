@@ -17,28 +17,27 @@ const userRegister = {
 
   // Crear usuario
 createUser: async (req, res) => {
+
   let { username, fullName, role, password, confirmPassword } = req.body;
 
-  // Normalizar el username a minúsculas
   username = username.trim().toLowerCase();
 
-  // Validar contraseñas iguales
+  // Validaciones
   if (password !== confirmPassword) {
     return res.status(400).send('❌ Las contraseñas no coinciden');
   }
 
-  // Validar mínimo de caracteres
   if (password.length < 6) {
     return res.status(400).send('❌ La contraseña debe tener al menos 6 caracteres');
   }
 
   try {
-    // Verificar si ya existe un usuario con ese username (sin importar mayúsculas)
+    // Verificar si ya existe un usuario con ese username
     const existingUser = await prisma.user.findFirst({
       where: {
         username: {
           equals: username,
-          mode: 'insensitive',
+          mode: 'insensitive'
         }
       }
     });
@@ -52,8 +51,8 @@ createUser: async (req, res) => {
     await prisma.user.create({
       data: {
         username,
-        fullName,
-        role,
+        fullName,  
+        roleId: parseInt(role), // ✅ USAR roleId
         password: hashedPassword
       }
     });
@@ -65,12 +64,18 @@ createUser: async (req, res) => {
   }
 },
     listUsers: async (req, res) => {
-        try {
-            const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
-            res.render('users/List', { users });
-        } catch (error) {
-            console.error('ERROR AL LISTAR USUARIOS:', error);
-            res.status(500).send('ERROR AL LISTAR USUARIOS');
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        role: true // ✅ Incluye el nombre del rol directamente
+      }
+    });
+
+    res.render('users/List', { users });
+  } catch (error) {
+    console.error('ERROR AL LISTAR USUARIOS:', error);
+    res.status(500).send('ERROR AL LISTAR USUARIOS');
   }
 },
   // Mostrar formulario para editar un usuario
@@ -78,20 +83,24 @@ createUser: async (req, res) => {
     const userId = parseInt(req.params.id);
 
     try {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { role: true }
+      });
 
       if (!user) {
         return res.status(404).send('Usuario no encontrado');
       }
 
-      res.render('users/EditUserForm', { user });
+      const roles = await prisma.role.findMany({ orderBy: { name: 'asc' } });
+
+      res.render('users/EditUserForm', { user, roles });
     } catch (error) {
       console.error('ERROR AL CARGAR FORMULARIO DE EDICIÓN:', error);
       res.status(500).send('ERROR AL CARGAR FORMULARIO DE EDICIÓN');
     }
   },
 
-  // Actualizar usuario
   // Actualizar usuario
 updateUser: async (req, res) => {
   const userId = parseInt(req.params.id);
@@ -115,7 +124,11 @@ updateUser: async (req, res) => {
       return res.status(400).send('❌ El nombre de usuario ya está en uso por otro usuario');
     }
 
-    const updatedData = { username, fullName, role };
+    const updatedData = {
+      username,
+      fullName,
+      roleId: parseInt(role) // 👈 recuerda que en el modelo `User`, role es un ID (Int)
+    };
 
     // Si se quiere actualizar la contraseña
     if (password && password.trim() !== '') {
@@ -143,16 +156,30 @@ updateUser: async (req, res) => {
 },
   // Eliminar usuario
   deleteUser: async (req, res) => {
-    const userId = parseInt(req.params.id);
+  const userId = parseInt(req.params.id);
 
-    try {
-      await prisma.user.delete({ where: { id: userId } });
-      res.redirect('/users/list');
-    } catch (error) {
-      console.error('ERROR AL ELIMINAR USUARIO:', error);
-      res.status(500).send('ERROR AL ELIMINAR USUARIO');
+  try {
+    // 1. Verifica si el usuario existe
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(404).send('❌ Usuario no encontrado');
     }
-  },
+
+    // 2. (Opcional) Prevenir que un usuario se elimine a sí mismo
+    if (req.session.user?.id === userId) {
+      return res.status(400).send('❌ No puedes eliminar tu propia cuenta');
+    }
+
+    // 3. Elimina el usuario
+    await prisma.user.delete({ where: { id: userId } });
+
+    res.redirect('/users/list');
+  } catch (error) {
+    console.error('ERROR AL ELIMINAR USUARIO:', error);
+    res.status(500).send('ERROR AL ELIMINAR USUARIO');
+  }
+},
 };
 
 module.exports = userRegister;

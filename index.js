@@ -13,6 +13,7 @@ const usedTiresRoutes = require('./routes/usedTiresRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const usersRoutes = require('./routes/usersRoutes');
 const loginRoutes = require('./routes/loginRoutes');
+const alertsRoutes = require('./routes/alertsRoutes');
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
@@ -35,20 +36,26 @@ app.use(session({
 
 /* -------- ① currentUser + alertas -------- */
 app.use(async (req, res, next) => {
-  if (req.session.user) {
-    // Disponible en EJS: <%= currentUser.name %>
-    res.locals.currentUser = req.session.user;
+  res.locals.currentUser = req.session.user;
 
-    // Alertas de stock sin resolver
-    res.locals.alerts = await prisma.stockAlert.findMany({
-      where: { resolved: false },
-      orderBy: { createdAt: 'desc' },
-      include: { NewTire: true, UsedTire: true },
-    });
-  } else {
-    res.locals.currentUser = null;
+  try{
+  // Cargar alertas no resueltas
+  res.locals.alerts = await prisma.stockAlert.findMany({
+    where: { resolved: false },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      newTire: {
+        include: { brand: true, type: true }
+      },
+      usedTire: {
+        include: { brand: true, type: true }
+      }
+    }
+  });
+} catch(error){
+    console.error('Error cargando alertas:', error);
     res.locals.alerts = [];
-  }
+}
   next();
 });
 
@@ -63,6 +70,7 @@ app.use('/usedtires', usedTiresRoutes);
 app.use('/invoices', invoiceRoutes);
 app.use('/users', usersRoutes);
 app.use('/login', loginRoutes);
+app.use('/alerts', alertsRoutes);
 
 //Middleware para asegurar que cualquier vaya a consola
 process.on('unhandledRejection', (reason) => {

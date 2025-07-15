@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <title>Notificaciones</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../partials/NavBar') %>
+    <div class="container">
+  <h1 class="titulo">🔔 Alertas de Stock Activas</h1>
+
+  <% if (alerts.length === 0) { %>
+    <p>No hay alertas activas en este momento.</p>
+  <% } else { %>
+    <table class="table-style">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Marca</th>
+          <th>Referencia</th>
+          <th>Peso</th>
+          <th>Cantidad</th>
+          <th>Registrada el</th>
+          <th>Ir al producto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% alerts.forEach(alert => { 
+          const tire = alert.tireType === 'new' ? alert.newTire : alert.usedTire;
+        %>
+          <tr class="stock-bajo">
+            <td><%= alert.tireType === 'new' ? 'Nueva' : 'Usada' %></td>
+            <td><%= tire?.brand?.name || '—' %></td>
+            <td><%= tire?.size || '—' %></td>
+            <td><%= tire?.weight || '—' %> kg</td>
+            <td><strong><%= alert.quantity %></strong></td>
+            <td><%= alert.createdAt.toLocaleDateString() %></td>
+            <td>
+              <% if (tire) { %>
+                <a href="/<%= alert.tireType === 'new' ? 'newtires' : 'usedtires' %>/edit/<%= tire.id %>" class="btn-edit">Ver / Editar</a>
+              <% } else { %>
+                —
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+</body>
+</html>
