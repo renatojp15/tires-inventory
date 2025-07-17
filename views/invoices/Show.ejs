@@ -32,7 +32,9 @@
       history.replaceState(null, '', window.location.pathname);
     }
   </script>
+
   <%- include('../partials/NavBar') %>
+  
   <div class="invoice-container">
     <header class="invoice-header">
   <div class="logo-container" style="flex: 1;">
@@ -89,7 +91,7 @@
   %>
     <tr>
       <td><%= item.newTire ? 'Nueva' : 'Usada' %></td>
-      <td><%= tire.brand %></td>
+      <td><%= tire.brand.name %></td>
       <td><%= tire.size %></td>
       <td><%= item.quantity %></td>
       <td><%= peso.toFixed(2) %></td>
@@ -97,19 +99,83 @@
       <td>$<%= (item.quantity * price).toFixed(2) %></td>
     </tr>
   <% }) %>
-</tbody>
-      </table>
+  </tbody>
+</table>
 
-      <div class="invoice-total">
-        <p><strong>Peso total:</strong> <%= totalWeight.toFixed(2) %> kg</p>
-        <p><strong>Total a pagar:</strong> $<%= invoice.totalAmount.toFixed(2) %></p>
+      <%
+        let cantidadTotal = 0;
+        let pesoTotal = 0;
+        invoice.items.forEach(item => {
+          cantidadTotal += item.quantity;
+          pesoTotal += item.quantity * (item.newTire?.weight ?? item.usedTire?.weight ?? 0);
+        });
+      %>
+
+<div class="totales-wrapper">
+  <div class="box-totales">
+    <table class="totales-finales">
+      <tr>
+        <td><strong>Cantidad total:</strong></td>
+        <td><%= cantidadTotal %> llantas</td>
+      </tr>
+      <tr>
+        <td><strong>Peso total:</strong></td>
+        <td><%= pesoTotal.toFixed(2) %> kg</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="box-totales">
+    <table class="totales-finales">
+      <tr>
+        <td><strong>Traspaso:</strong></td>
+        <td>$<%= invoice.shippingCost?.toFixed(2) ?? '0.00' %></td>
+      </tr>
+      <tr>
+        <td><strong>CBM:</strong></td>
+        <td><%= invoice.cbm?.toFixed(2) ?? '0.00' %> m³</td>
+      </tr>
+      <tr>
+        <td><strong>Total a pagar:</strong></td>
+        <td><strong>$<%= invoice.totalAmount.toFixed(2) %></strong></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+      <section class="bank-info" style="margin-top: 30px; padding: 15px; border-top: 2px dashed #333;">
+  <h3 style="text-align: center;">Datos Bancarios</h3>
+
+      <p><strong>BANCO INTERMEDIARIO:</strong> CITIBANK NEW YORK NY</p>
+      <p><strong>SWIFT BANCO INTERMEDIARIO:</strong> C I T I U S 3 3</p>
+      <p><strong>ABA:</strong> 021000089</p>
+
+      <p><strong>BANCO BENEFICIARIO:</strong> BANCO GENERAL S.A</p>
+      <p><strong>SWIFT:</strong> B A G E P A P A</p>
+
+      <br>
+
+      <p><strong>INFORMACIÓN BANCARIA:</strong> BANCO GENERAL</p>
+      <p><strong>BENEFICIARIO:</strong> SONIX LTD</p>
+      <p><strong>NÚMERO DE CUENTA:</strong> 037011370334</p>
+      <p><strong>TIPO DE CUENTA:</strong> CUENTA CORRIENTE</p>
+
+      <br><br>
+
+      <div class="firmas">
+        <div>
+          <p>____________________________</p>
+          <p>EL COMPRADOR</p>
+        </div>
+        <div>
+          <p>____________________________</p>
+          <p>EL VENDEDOR</p>
+        </div>
       </div>
+    </section>
     </main>
 
     <footer class="invoice-footer">
-      <p>__________________________</p>
-      <p>Firma</p>
-
       <% if (!isPdf) { %>
       <div class="buttons btn-group no-print" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px;">
         <a href="/invoices/new" class="btn btn-create">🧾 Nueva Factura</a>

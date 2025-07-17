@@ -7,9 +7,28 @@
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registros de Llantas Usadas</title>
   <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/navButtons.css">
 </head>
 <body>
+
   <%- include('../partials/navbar') %>
+
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+    <!-- 🔵 Botón: Agregar llanta nueva -->
+    <a href="/usedtires/form" class="btn-action">
+      ➕ Registrar llanta usada
+    </a>
+
+    <!-- 🟢 Botón: Ver llantas usadas -->
+    <a href="/newtires/list" class="btn-action">
+      🛞 Ver llantas nuevas
+    </a>
+
+    <!-- 🔙 Botón: Volver al Dashboard -->
+    <a href="/users/dashboard" class="btn-action">
+      🏠 Ir al Dashboard
+    </a>
+  </div>
 
   <div class="container">
     <h1 class="titulo">REGISTROS DE LLANTAS USADAS</h1>
@@ -84,6 +103,23 @@
             <% }); %>
           </tbody>
         </table>
+      <% } %>
+
+       <!-- 📄 Paginación -->
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>&search=<%= search %>">&laquo; Anterior</a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>&search=<%= search %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+
+          <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>&search=<%= search %>">Siguiente &raquo;</a>
+          <% } %>
+        </div>
       <% } %>
     <% } %>
   </div>

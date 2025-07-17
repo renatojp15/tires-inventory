@@ -7,10 +7,18 @@
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registrar Llantas Usadas</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navButtons.css">
 </head>
 <body>
 
   <%- include('../partials/navbar') %>
+
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+    <!-- 🔵 Botón: Regresar a la lista de llantas nuevas -->
+    <a href="/usedtires/list" class="btn-action">
+      📋 Regresar a la Lista
+    </a>
+  </div>
 
   <div class="container">
     <h1 class="titulo">REGISTRO DE LLANTAS USADAS</h1>

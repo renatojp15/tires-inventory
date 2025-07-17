@@ -378,3 +378,35 @@ button:hover {
   to   { opacity: 1; transform: translateY(0); }
 }
 /* FIN DE ESTILOS DE NOTIFICACIONES FLOTANTES PARA ALERTAS */
+
+/* ESTILOS PARA PAGINACIÓN */
+.pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 25px 0;
+}
+
+.pagination a {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination a.active {
+  background-color: #007bff;
+  color: white;
+  pointer-events: none;
+}
+/* FIN DE ESTILOS PARA PAGINACIÓN */

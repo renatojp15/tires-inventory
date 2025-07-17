@@ -6,9 +6,22 @@
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registro de Usuario</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navButtons.css">
 </head>
 <body>
+
   <%- include('../partials/navbar') %>
+
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+    <!-- 🔵 Botón: Regresar a la lista de llantas nuevas -->
+     <a href="/users/dashboard" class="btn-action">
+      🏠 ir al dashboard
+    </a>
+    <a href="/users/list" class="btn-action">
+      📋 ir a la Lista de usuarios
+    </a>
+  </div>
+
   <div class="container">
     <h1 class="titulo">REGISTRO DE USUARIO</h1>
     

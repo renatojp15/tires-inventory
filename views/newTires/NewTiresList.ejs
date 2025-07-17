@@ -7,14 +7,21 @@
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Registros de Llantas Nuevas</title>
   <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/navButtons.css">
 </head>
 <body>
+
   <%- include('../partials/NavBar') %>
+
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+    <a href="/newtires/form" class="btn-action">➕ Registrar llanta nueva</a>
+    <a href="/usedtires/list" class="btn-action">🛞 Ver llantas usadas</a>
+    <a href="/users/dashboard" class="btn-action">🏠 Ir al Dashboard</a>
+  </div>
 
   <div class="container">
     <h1 class="titulo">REGISTROS DE LLANTAS NUEVAS</h1>
 
-    <!-- 🔍 Barra de búsqueda -->
     <form method="GET" action="/newtires/list" class="search-bar">
       <input
         type="text"
@@ -25,7 +32,6 @@
       <button type="submit">Buscar</button>
     </form>
 
-    <!-- 📥 Rango de exportación -->
     <form action="/newtires/export" method="GET" class="export-range">
       <label>Desde:
         <input type="date" name="from" required>
@@ -39,14 +45,11 @@
       <p class="hint">Solo se permiten rangos de <strong>máximo 30 días</strong>.</p>
     </form>
 
-    <!-- 📋 Lista agrupada por fecha -->
     <% if (Object.keys(tiresGrouped).length === 0) { %>
       <p>No hay llantas registradas.</p>
     <% } else { %>
       <% for (let fecha in tiresGrouped) { %>
-        <h3 class="fecha-titulo">
-          📅 <%= fecha %>
-        </h3>
+        <h3 class="fecha-titulo">📅 <%= fecha %></h3>
         <div class="table-container">
         <table class="table-style">
           <thead>
@@ -65,7 +68,7 @@
           </thead>
           <tbody>
             <% tiresGrouped[fecha].forEach(tire => { %>
-              <tr class="<%= tire.quantity <= tire.minStock ? 'stock-bajo' : '' %>"></tr>
+              <tr class="<%= tire.quantity <= tire.minStock ? 'stock-bajo' : '' %>">
                 <td><%= tire.brand.name %></td>
                 <td><%= tire.size %></td>
                 <td><%= tire.type.name %></td>
@@ -87,6 +90,24 @@
         </table>
         </div>
       <% } %>
+
+      <!-- 📄 Paginación -->
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>&search=<%= search %>">&laquo; Anterior</a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>&search=<%= search %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+
+          <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>&search=<%= search %>">Siguiente &raquo;</a>
+          <% } %>
+        </div>
+      <% } %>
+
     <% } %>
   </div>
 </body>

@@ -1,6 +1,7 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const ExcelJS = require('exceljs');
+const alertsController = require('../controllers/AlertsController');
 
 const newTiresController = {
     newTiresForm: async (req, res) => {
@@ -55,36 +56,11 @@ const newTiresController = {
       }
     }
 
-    // Crear llanta usada
+    // Crear llanta Nueva
     const newTire = await prisma.newTire.create({ data });
 
-    // Verificar stock bajo y manejar alerta
-    if (newTire.quantity <= newTire.minStock) {
-      const existingAlert = await prisma.stockAlert.findFirst({
-        where: {
-          newTireId: newTire.id,
-          resolved: false
-        }
-      });
-
-      if (existingAlert) {
-        await prisma.stockAlert.update({
-          where: { id: existingAlert.id },
-          data: {
-            quantity: newTire.quantity,
-            resolved: false
-          }
-        });
-      } else {
-        await prisma.stockAlert.create({
-          data: {
-            newTireId: newTire.id,
-            tireType: 'new',
-            quantity: newTire.quantity
-          }
-        });
-      }
-    }
+    // 🟡 Verificar alerta de stock bajo
+    await alertsController.createAlertIfNeeded('new', newTire);
 
     res.redirect('/newtires/list');
   } catch (error) {
@@ -95,20 +71,28 @@ const newTiresController = {
    newTiresList: async (req, res) => {
   try {
     const search = (req.query.search || '').trim().toLowerCase();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 15;
+    const skip = (page - 1) * limit;
 
     // Filtro dinámico
     const where = search
       ? {
           OR: [
-            { size: { contains: search, mode: 'insensitive' } },                 // referencia/tamaño
-            { brand: { name: { contains: search, mode: 'insensitive' } } },     // marca
-            { type:  { name: { contains: search, mode: 'insensitive' } } },     // tipo
+            { size: { contains: search, mode: 'insensitive' } },
+            { brand: { name: { contains: search, mode: 'insensitive' } } },
+            { type:  { name: { contains: search, mode: 'insensitive' } } },
           ],
         }
       : {};
 
+    // 🔢 Total para calcular páginas
+    const totalItems = await prisma.newTire.count({ where });
+
     const tires = await prisma.newTire.findMany({
       where,
+      skip,
+      take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
         brand: true,
@@ -117,19 +101,32 @@ const newTiresController = {
       }
     });
 
-    // Agrupamiento por fecha
+    // 🔔 Alertas activas
+    const alerts = await prisma.stockAlert.findMany({
+      where: { resolved: false },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Agrupar por fecha
     const tiresGrouped = {};
     tires.forEach(tire => {
       const dateKey = new Date(tire.createdAt).toLocaleDateString("es-PA");
       (tiresGrouped[dateKey] ??= []).push(tire);
     });
 
+    const totalPages = Math.ceil(totalItems / limit);
+
     res.render('newTires/NewTiresList', {
       tiresGrouped,
-      search
+      search,
+      alerts,
+      currentPage: page,
+      totalPages,
+      alertSound: true
     });
+
   } catch (error) {
-    console.error('❌ ERROR AL OBTENER LAS LLANTAS NUEVAS:', error);
+    console.error('❌ ERROR AL OBTENER LLANTAS NUEVAS:', error);
     res.status(500).send('ERROR AL CARGAR LAS LLANTAS NUEVAS');
   }
 },
@@ -194,43 +191,8 @@ const newTiresController = {
       },
     });
 
-    // 2. Verifica stock bajo y maneja alertas de forma segura
-    if (updated.quantity <= updated.minStock) {
-      const existingAlert = await prisma.stockAlert.findFirst({
-        where: {
-          newTireId: updated.id,
-          resolved: false
-        }
-      });
-
-      if (existingAlert) {
-        await prisma.stockAlert.update({
-          where: { id: existingAlert.id },
-          data: {
-            quantity: updated.quantity,
-            resolved: false
-          }
-        });
-      } else {
-        await prisma.stockAlert.create({
-          data: {
-            tireType: 'new',
-            newTireId: updated.id,
-            quantity: updated.quantity
-          }
-        });
-      }
-    } else {
-      await prisma.stockAlert.updateMany({
-        where: {
-          newTireId: updated.id,
-          resolved: false
-        },
-        data: {
-          resolved: true
-        }
-      });
-    }
+    // 🟡 Verificar alerta de stock bajo
+    await alertsController.createAlertIfNeeded('new', updated);
 
     res.redirect('/newtires/list');
   } catch (error) {

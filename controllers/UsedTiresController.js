@@ -1,6 +1,7 @@
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const ExcelJS = require('exceljs');
+const alertsController = require('../controllers/AlertsController');
 
 const usedTiresController = {
     UsedTiresForm: async (req, res) => {
@@ -58,33 +59,8 @@ const usedTiresController = {
     // Crear llanta usada
     const usedTire = await prisma.usedTire.create({ data });
 
-    // Verificar stock bajo y manejar alerta
-    if (usedTire.quantity <= usedTire.minStock) {
-      const existingAlert = await prisma.stockAlert.findFirst({
-        where: {
-          usedTireId: usedTire.id,
-          resolved: false
-        }
-      });
-
-      if (existingAlert) {
-        await prisma.stockAlert.update({
-          where: { id: existingAlert.id },
-          data: {
-            quantity: usedTire.quantity,
-            resolved: false
-          }
-        });
-      } else {
-        await prisma.stockAlert.create({
-          data: {
-            usedTireId: usedTire.id,
-            tireType: 'used',
-            quantity: usedTire.quantity
-          }
-        });
-      }
-    }
+    // Verificar alerta de stock bajo
+    await alertsController.createAlertIfNeeded('used', usedTire);
 
     res.redirect('/usedtires/list');
   } catch (error) {
@@ -93,45 +69,65 @@ const usedTiresController = {
   }
 },
     usedTiresList: async (req, res) => {
-  try {
-    const search = (req.query.search || '').trim().toLowerCase();
+    try {
+      const search = (req.query.search || '').trim().toLowerCase();
+      const page = parseInt(req.query.page) || 1;
+      const limit = 15;
+      const skip = (page - 1) * limit;
 
-    // Filtro dinámico
-    const where = search
-      ? {
-          OR: [
-            { size: { contains: search, mode: 'insensitive' } },                 // referencia/tamaño
-            { brand: { name: { contains: search, mode: 'insensitive' } } },     // marca
-            { type:  { name: { contains: search, mode: 'insensitive' } } },     // tipo
-          ],
+      // Filtro dinámico
+      const where = search
+        ? {
+            OR: [
+              { size: { contains: search, mode: 'insensitive' } },                 // referencia/tamaño
+              { brand: { name: { contains: search, mode: 'insensitive' } } },     // marca
+              { type:  { name: { contains: search, mode: 'insensitive' } } },     // tipo
+            ],
+          }
+        : {};
+
+        // 🔢 Total para calcular páginas
+      const totalItems = await prisma.usedTire.count({ where });
+
+      const tires = await prisma.usedTire.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          brand: true,
+          type: true,
+          location: true,
         }
-      : {};
+      });
 
-    const tires = await prisma.usedTire.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        brand: true,
-        type: true,
-        location: true,
-      }
-    });
+      // 🔔 Alertas activas
+      const alerts = await prisma.stockAlert.findMany({
+        where: { resolved: false },
+        orderBy: { createdAt: 'desc' }
+      });
 
-    // Agrupamiento por fecha
-    const tiresGrouped = {};
-    tires.forEach(tire => {
-      const dateKey = new Date(tire.createdAt).toLocaleDateString("es-PA");
-      (tiresGrouped[dateKey] ??= []).push(tire);
-    });
+      // Agrupamiento por fecha
+      const tiresGrouped = {};
+      tires.forEach(tire => {
+        const dateKey = new Date(tire.createdAt).toLocaleDateString("es-PA");
+        (tiresGrouped[dateKey] ??= []).push(tire);
+      });
 
-    res.render('usedTires/UsedTiresList', {
-      tiresGrouped,
-      search
-    });
-  } catch (error) {
-    console.error('❌ ERROR AL OBTENER LAS LLANTAS USADAS:', error);
-    res.status(500).send('ERROR AL CARGAR LAS LLANTAS USADAS');
-  }
+      const totalPages = Math.ceil(totalItems / limit);
+
+      res.render('usedTires/UsedTiresList', {
+        tiresGrouped,
+        search,
+        alerts,
+        currentPage: page,
+        totalPages,
+        alertSound: true
+      });
+    } catch (error) {
+      console.error('❌ ERROR AL OBTENER LAS LLANTAS USADAS:', error);
+      res.status(500).send('ERROR AL CARGAR LAS LLANTAS USADAS');
+    }
 },
     editUsedTiresForm: async(req, res) => {
         const { id } = req.params;
@@ -162,75 +158,40 @@ const usedTiresController = {
         }
     },
     updateUsedTires: async (req, res) => {
-  const { id } = req.params;
-  const {
-    brand, // id
-    size,
-    type,  // id
-    quantity,
-    weight,
-    priceUnit,
-    priceWholesale,
-    priceRetail,
-    location, // id
-    minStock
-  } = req.body;
-
-  try {
-    // 1. Actualiza la llanta
-    const updated = await prisma.usedTire.update({
-      where: { id: parseInt(id) },
-      data: {
-        brandId: parseInt(brand),
-        typeId: parseInt(type),
-        locationId: parseInt(location),
+      const { id } = req.params;
+      const {
+        brand, // id
         size,
-        weight: parseFloat(weight),
-        quantity: parseInt(quantity),
-        priceUnit: parseFloat(priceUnit),
-        priceWholesale: parseFloat(priceWholesale),
-        priceRetail: parseFloat(priceRetail),
-        ...(minStock ? { minStock: parseInt(minStock) } : {})
-      },
-    });
+        type,  // id
+        quantity,
+        weight,
+        priceUnit,
+        priceWholesale,
+        priceRetail,
+        location, // id
+        minStock
+      } = req.body;
 
-    // 2. Verifica stock bajo y maneja alertas de forma segura
-    if (updated.quantity <= updated.minStock) {
-      const existingAlert = await prisma.stockAlert.findFirst({
-        where: {
-          usedTireId: updated.id,
-          resolved: false
-        }
-      });
+      try {
+        // 1. Actualiza la llanta
+        const updated = await prisma.usedTire.update({
+          where: { id: parseInt(id) },
+          data: {
+            brandId: parseInt(brand),
+            typeId: parseInt(type),
+            locationId: parseInt(location),
+            size,
+            weight: parseFloat(weight),
+            quantity: parseInt(quantity),
+            priceUnit: parseFloat(priceUnit),
+            priceWholesale: parseFloat(priceWholesale),
+            priceRetail: parseFloat(priceRetail),
+            ...(minStock ? { minStock: parseInt(minStock) } : {})
+          },
+        });
 
-      if (existingAlert) {
-        await prisma.stockAlert.update({
-          where: { id: existingAlert.id },
-          data: {
-            quantity: updated.quantity,
-            resolved: false
-          }
-        });
-      } else {
-        await prisma.stockAlert.create({
-          data: {
-            tireType: 'used',
-            usedTireId: updated.id,
-            quantity: updated.quantity
-          }
-        });
-      }
-    } else {
-      await prisma.stockAlert.updateMany({
-        where: {
-          usedTireId: updated.id,
-          resolved: false
-        },
-        data: {
-          resolved: true
-        }
-      });
-    }
+        // Verificar alerta de stock bajo
+    await alertsController.createAlertIfNeeded('used', updated);
 
     res.redirect('/usedtires/list');
   } catch (error) {

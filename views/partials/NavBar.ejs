@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar no-print">
   <div class="nav-container">
     <!-- Logo o nombre del sistema -->
     <a href="/users/dashboard" class="logo">SONIX LTD</a>
@@ -31,26 +31,42 @@
   </div>
 </nav>
 
-<% if (alerts && alerts.length > 0) { %>
-  <!-- 🔔 Notificación flotante de alerta de stock -->
-  <div id="stock-toast" class="stock-toast">
+<% if (typeof alertSound !== 'undefined' && alertSound && alerts && alerts.length > 0) { %>
+  <!-- 🔔 Notificación flotante (estática en HTML para no depender solo de JS) -->
+  <div class="stock-toast">
     🔔 ¡Tienes <strong><%= alerts.length %></strong> alerta<%= alerts.length > 1 ? 's' : '' %> de stock bajo!
     <a href="/alerts" class="ver-alertas">Ver alertas</a>
   </div>
 
-  <!-- 🔊 Sonido de alerta (solo si no ha sonado antes en la sesión) -->
-  <script>
-    // Verificamos si ya se reprodujo la alerta en esta sesión
-    if (!sessionStorage.getItem('alertSoundPlayed')) {
-      const audio = new Audio('/sounds/alert.mp3');
-      audio.play().catch(() => {}); // Evita errores si el navegador bloquea
-      sessionStorage.setItem('alertSoundPlayed', 'true');
-    }
+  <!-- Contenedor oculto para pasar el número de alertas al JS -->
+  <div id="alerta-data" data-alert-count="<%= alerts.length %>"></div>
 
-    // Ocultar automáticamente el toast después de 5 segundos
-    setTimeout(() => {
-      const toast = document.getElementById('stock-toast');
-      if (toast) toast.remove();
-    }, 5000);
+  <!-- 🔊 Sonido y notificación controlada -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const alertaDiv = document.getElementById('alerta-data');
+      const alertCount = parseInt(alertaDiv.dataset.alertCount) || 0;
+
+      const lastCount = parseInt(localStorage.getItem('lastAlertCount')) || 0;
+
+      if (alertCount > lastCount) {
+        // Reproducir sonido si hay nuevas alertas
+        const audio = new Audio('/sounds/alert.mp3');
+        audio.play().catch(() => {});
+      }
+
+      // Guardar la cantidad actual para comparar en la próxima carga
+      localStorage.setItem('lastAlertCount', alertCount);
+
+      // Mostrar notificación flotante también desde JS por si hace falta
+      const toast = document.createElement('div');
+      toast.className = 'stock-toast';
+      toast.innerHTML = `🔔 ¡Tienes <strong>${alertCount}</strong> alerta${alertCount > 1 ? 's' : ''} de stock bajo!
+        <a href="/alerts" class="ver-alertas">Ver alertas</a>`;
+      document.body.appendChild(toast);
+
+      // Ocultar después de 5 segundos
+      setTimeout(() => toast.remove(), 5000);
+    });
   </script>
 <% } %>

@@ -7,41 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/* ---------- ENUMS ---------- */
+/**
+ * ---------- ENUMS ----------
+ */
 enum TireCategory {
   new
   used
 }
 
-/* ---------- CATÁLOGOS ---------- */
+/**
+ * ---------- CATÁLOGOS ----------
+ */
 model Brand {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique
-  newTires   NewTire[]
-  usedTires  UsedTire[]
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  newTires  NewTire[]
+  usedTires UsedTire[]
 }
 
 model TireType {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique
-  newTires   NewTire[]
-  usedTires  UsedTire[]
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  newTires  NewTire[]
+  usedTires UsedTire[]
 }
 
 model Location {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique
-  newTires   NewTire[]
-  usedTires  UsedTire[]
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  newTires  NewTire[]
+  usedTires UsedTire[]
 }
 
 model Role {
-  id     Int    @id @default(autoincrement())
-  name   String @unique
-  users  User[]
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
 }
 
-/* ---------- LLANTAS NUEVAS ---------- */
+/**
+ * ---------- LLANTAS NUEVAS ----------
+ */
 model NewTire {
   id             Int      @id @default(autoincrement())
   brandId        Int
@@ -57,16 +63,18 @@ model NewTire {
   priceRetail    Float
   createdAt      DateTime @default(now())
 
-  brand          Brand     @relation(fields: [brandId], references: [id])
-  type           TireType  @relation(fields: [typeId], references: [id])
-  location       Location  @relation(fields: [locationId], references: [id])
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  type     TireType @relation(fields: [typeId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
 
   invoiceItems   InvoiceItem[]   @relation("NewTireToInvoiceItem")
   quotationItems QuotationItem[] @relation("NewTireToQuotationItem")
-  alerts         StockAlert[]    @relation("NewTireStockAlert")  // ← relación con StockAlert
+  alerts         StockAlert[]    @relation("NewTireStockAlert") // ← relación con StockAlert
 }
 
-/* ---------- LLANTAS USADAS ---------- */
+/**
+ * ---------- LLANTAS USADAS ----------
+ */
 model UsedTire {
   id             Int      @id @default(autoincrement())
   brandId        Int
@@ -82,30 +90,34 @@ model UsedTire {
   priceRetail    Float
   createdAt      DateTime @default(now())
 
-  brand          Brand     @relation(fields: [brandId], references: [id])
-  type           TireType  @relation(fields: [typeId], references: [id])
-  location       Location  @relation(fields: [locationId], references: [id])
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  type     TireType @relation(fields: [typeId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
 
   invoiceItems   InvoiceItem[]   @relation("UsedTireToInvoiceItem")
   quotationItems QuotationItem[] @relation("UsedTireToQuotationItem")
-  alerts         StockAlert[]    @relation("UsedTireStockAlert")  // ← relación con StockAlert
+  alerts         StockAlert[]    @relation("UsedTireStockAlert") // ← relación con StockAlert
 }
 
-/* ---------- ALERTAS DE STOCK ---------- */
+/**
+ * ---------- ALERTAS DE STOCK ----------
+ */
 model StockAlert {
-  id         Int           @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   tireType   TireCategory
-  newTireId  Int?          // ← llanta nueva
-  usedTireId Int?          // ← llanta usada
+  newTireId  Int? // ← llanta nueva
+  usedTireId Int? // ← llanta usada
   quantity   Int
-  createdAt  DateTime      @default(now())
-  resolved   Boolean       @default(false)
+  createdAt  DateTime     @default(now())
+  resolved   Boolean      @default(false)
 
-  newTire    NewTire?      @relation("NewTireStockAlert", fields: [newTireId], references: [id])
-  usedTire   UsedTire?     @relation("UsedTireStockAlert", fields: [usedTireId], references: [id])
+  newTire  NewTire?  @relation("NewTireStockAlert", fields: [newTireId], references: [id])
+  usedTire UsedTire? @relation("UsedTireStockAlert", fields: [usedTireId], references: [id])
 }
 
-/* ---------- CLIENTES ---------- */
+/**
+ * ---------- CLIENTES ----------
+ */
 model Customer {
   id        Int      @id @default(autoincrement())
   fullName  String
@@ -114,11 +126,13 @@ model Customer {
   address   String?
   createdAt DateTime @default(now())
 
-  invoices     Invoice[]
-  quotations   Quotation[]
+  invoices   Invoice[]
+  quotations Quotation[]
 }
 
-/* ---------- USUARIOS ---------- */
+/**
+ * ---------- USUARIOS ----------
+ */
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
@@ -127,29 +141,37 @@ model User {
   roleId    Int
   createdAt DateTime @default(now())
 
-  role      Role     @relation(fields: [roleId], references: [id])
-  invoices  Invoice[]
+  role       Role        @relation(fields: [roleId], references: [id])
+  invoices   Invoice[]
   quotations Quotation[]
 }
 
-/* ---------- FACTURAS ---------- */
+/**
+ * ---------- FACTURAS ----------
+ */
 model Invoice {
-  id          Int           @id @default(autoincrement())
-  invoiceCode String        @unique
-  date        DateTime      @default(now())
-  totalAmount Float
-  totalWeight Float         @default(0)
-  customerId  Int
-  userId      Int?
+  id            Int      @id @default(autoincrement())
+  invoiceCode   String   @unique
+  date          DateTime @default(now())
+  totalAmount   Float // Total a pagar (subtotal + traspaso + CBM si aplica)
+  subtotal      Float    @default(0)
+  shippingCost  Float    @default(0) // ← traspaso
+  cbm           Float    @default(0) // ← cubicaje
+  totalWeight   Float    @default(0)
+  totalQuantity Int      @default(0)
+  customerId    Int
+  userId        Int?
 
-  customer    Customer      @relation(fields: [customerId], references: [id])
-  user        User?         @relation(fields: [userId], references: [id])
-  items       InvoiceItem[]
+  customer Customer      @relation(fields: [customerId], references: [id])
+  user     User?         @relation(fields: [userId], references: [id])
+  items    InvoiceItem[]
 }
 
-/* ---------- ÍTEMS DE FACTURA ---------- */
+/**
+ * ---------- ÍTEMS DE FACTURA ----------
+ */
 model InvoiceItem {
-  id         Int       @id @default(autoincrement())
+  id         Int   @id @default(autoincrement())
   invoiceId  Int
   newTireId  Int?
   usedTireId Int?
@@ -157,37 +179,47 @@ model InvoiceItem {
   unitPrice  Float
   subtotal   Float
 
-  invoice    Invoice   @relation(fields: [invoiceId], references: [id])
-  newTire    NewTire?  @relation("NewTireToInvoiceItem", fields: [newTireId], references: [id])
-  usedTire   UsedTire? @relation("UsedTireToInvoiceItem", fields: [usedTireId], references: [id])
+  invoice  Invoice   @relation(fields: [invoiceId], references: [id])
+  newTire  NewTire?  @relation("NewTireToInvoiceItem", fields: [newTireId], references: [id])
+  usedTire UsedTire? @relation("UsedTireToInvoiceItem", fields: [usedTireId], references: [id])
 }
 
-/* ---------- COTIZACIONES ---------- */
+/**
+ * ---------- COTIZACIONES ----------
+ */
 model Quotation {
-  id           Int             @id @default(autoincrement())
-  quoteCode    String          @unique
-  date         DateTime        @default(now())
-  totalAmount  Float
-  totalWeight  Float           @default(0)
-  customerId   Int
-  userId       Int?
+  id            Int      @id @default(autoincrement())
+  quotationCode String   @unique // ← antes: quoteCode
+  date          DateTime @default(now())
+  expiresAt     DateTime // ← nueva
+  status        String   @default("pendiente") // ← nueva: "pendiente", "aceptada", etc.
+  traspaso      Float    @default(0) // ← nuevo: costo de traspaso
+  cbm           Float    @default(0) // ← nuevo: cubicaje
+  subtotal      Float    @default(0) // ← nuevo: suma de los subtotales de ítems
+  totalAmount   Float // ← subtotal + traspaso + cbm
+  totalWeight   Float    @default(0) // ← puede mantenerse si lo calculas
+  observations  String? // ← notas u observaciones opcionales
+  customerId    Int
+  userId        Int?
 
-  customer     Customer        @relation(fields: [customerId], references: [id])
-  user         User?           @relation(fields: [userId], references: [id])
-  items        QuotationItem[]
+  customer Customer        @relation(fields: [customerId], references: [id])
+  user     User?           @relation(fields: [userId], references: [id])
+  items    QuotationItem[]
 }
 
-/* ---------- ÍTEMS DE COTIZACIÓN ---------- */
+/**
+ * ---------- ÍTEMS DE COTIZACIÓN ----------
+ */
 model QuotationItem {
-  id           Int       @id @default(autoincrement())
-  quotationId  Int
-  newTireId    Int?
-  usedTireId   Int?
-  quantity     Int
-  unitPrice    Float
-  subtotal     Float
+  id          Int   @id @default(autoincrement())
+  quotationId Int
+  newTireId   Int?
+  usedTireId  Int?
+  quantity    Int
+  unitPrice   Float
+  subtotal    Float
 
-  quotation    Quotation @relation(fields: [quotationId], references: [id])
-  newTire      NewTire?  @relation("NewTireToQuotationItem", fields: [newTireId], references: [id])
-  usedTire     UsedTire? @relation("UsedTireToQuotationItem", fields: [usedTireId], references: [id])
+  quotation Quotation @relation(fields: [quotationId], references: [id])
+  newTire   NewTire?  @relation("NewTireToQuotationItem", fields: [newTireId], references: [id])
+  usedTire  UsedTire? @relation("UsedTireToQuotationItem", fields: [usedTireId], references: [id])
 }

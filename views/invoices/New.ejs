@@ -6,26 +6,39 @@
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <title>Crear Factura</title>
 
-  <!-- Estilos principales -->
+  <!-- Estilos -->
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/invoices.css">
-
-  <!-- JS para acordeón -->
+  <link rel="stylesheet" href="/css/navButtons.css">
   <script src="/js/invoices.js" defer></script>
 </head>
 <body>
+
   <%- include('../partials/navbar') %>
 
-  <div class="container">
-    <h1>Crear Factura</h1>
-    <form action="/invoices/create" method="POST">
-      <fieldset class="form-group">
-        <legend>Datos del Cliente</legend>
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
 
-        <label for="fullName">Nombre del Cliente:</label>
+    <a href="/invoices/list" class="btn-action">
+      🧾 ir a lista de Facturas
+    </a>
+
+    <a href="/users/dashboard" class="btn-action">
+      🏠 Ir al Dashboard
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>🧾 Crear Factura</h1>
+
+    <form action="/invoices/create" method="POST">
+      <!-- 🧍 Datos del Cliente -->
+      <fieldset class="form-group">
+        <legend>📋 Datos del Cliente</legend>
+
+        <label for="fullName">Nombre:</label>
         <input type="text" name="fullName" id="fullName" required>
 
-        <label for="idNumber">Cédula o ID del Cliente:</label>
+        <label for="idNumber">Cédula o ID:</label>
         <input type="text" name="idNumber" id="idNumber">
 
         <label for="phone">Teléfono:</label>
@@ -35,45 +48,92 @@
         <input type="text" name="address" id="address">
       </fieldset>
 
-      <!-- Llantas Nuevas -->
-      <div class="accordion-section">
-        <button type="button" class="accordion-toggle">▶️ Llantas Nuevas</button>
-        <div class="accordion-content">
-          <% newTires.forEach((tire, index) => { %>
-            <div class="tire-item">
-              <label>
-                <input type="checkbox" name="items[<%= index %>][selected]" value="true">
-                <strong><%= tire.brand %></strong> | Ref: <%= tire.size %> | Tipo: <%= tire.type %> | $<%= tire.priceRetail %> (detal)
-              </label>
-              <input type="hidden" name="items[<%= index %>][tireId]" value="<%= tire.id %>">
-              <input type="hidden" name="items[<%= index %>][tireType]" value="new">
-              <input type="number" name="items[<%= index %>][quantity]" min="1" placeholder="Cantidad">
-            </div>
-          <% }) %>
-        </div>
+     <!-- 📦 Llantas Nuevas -->
+<div class="accordion-section">
+  <button type="button" class="accordion-toggle">▶️ Llantas Nuevas</button>
+  <div class="accordion-content">
+    <% newTires.forEach((tire, index) => { %>
+      <div class="tire-item">
+        <label>
+          <input 
+            type="checkbox" 
+            name="items[<%= index %>][selected]" 
+            value="true" 
+            class="tire-checkbox"
+            onchange="toggleQuantity(this)"
+          >
+          📦 <strong>Incluir</strong> → <strong><%= tire.brand.name %></strong> |
+          Ref: <%= tire.size %> |
+          Tipo: <%= tire.type.name %> |
+          Peso: <%= tire.weight %> kg |
+          Ubicación: <%= tire.location.name %> |
+          $<%= tire.priceRetail.toFixed(2) %> (detal)
+        </label>
+        <input type="hidden" name="items[<%= index %>][tireId]" value="<%= tire.id %>">
+        <input type="hidden" name="items[<%= index %>][tireType]" value="new">
+        <input 
+          type="number" 
+          name="items[<%= index %>][quantity]" 
+          min="1" 
+          placeholder="Cantidad"
+          class="quantity-input"
+          disabled
+        >
       </div>
+    <% }) %>
+  </div>
+</div>
 
-      <!-- Llantas Usadas -->
-      <div class="accordion-section">
-        <button type="button" class="accordion-toggle">▶️ Llantas Usadas</button>
-        <div class="accordion-content">
-          <% usedTires.forEach((tire, index) => {
-              const idx = newTires.length + index;
-          %>
-            <div class="tire-item">
-              <label>
-                <input type="checkbox" name="items[<%= idx %>][selected]" value="true">
-                <strong><%= tire.brand %></strong> | Ref: <%= tire.size %> | Tipo: <%= tire.type %> | $<%= tire.priceRetail %> (detal)
-              </label>
-              <input type="hidden" name="items[<%= idx %>][tireId]" value="<%= tire.id %>">
-              <input type="hidden" name="items[<%= idx %>][tireType]" value="used">
-              <input type="number" name="items[<%= idx %>][quantity]" min="1" placeholder="Cantidad">
-            </div>
-          <% }) %>
-        </div>
+<!-- 🔄 Llantas Usadas -->
+<div class="accordion-section">
+  <button type="button" class="accordion-toggle">▶️ Llantas Usadas</button>
+  <div class="accordion-content">
+    <% usedTires.forEach((tire, index) => {
+        const idx = newTires.length + index;
+    %>
+      <div class="tire-item">
+        <label>
+          <input 
+            type="checkbox" 
+            name="items[<%= idx %>][selected]" 
+            value="true" 
+            class="tire-checkbox"
+            onchange="toggleQuantity(this)"
+          >
+          📦 <strong>Incluir</strong> → <strong><%= tire.brand.name %></strong> |
+          Ref: <%= tire.size %> |
+          Tipo: <%= tire.type.name %> |
+          Peso: <%= tire.weight %> kg |
+          Ubicación: <%= tire.location.name %> |
+          $<%= tire.priceRetail.toFixed(2) %> (detal)
+        </label>
+        <input type="hidden" name="items[<%= idx %>][tireId]" value="<%= tire.id %>">
+        <input type="hidden" name="items[<%= idx %>][tireType]" value="used">
+        <input 
+          type="number" 
+          name="items[<%= idx %>][quantity]" 
+          min="1" 
+          placeholder="Cantidad"
+          class="quantity-input"
+          disabled
+        >
       </div>
+    <% }) %>
+  </div>
+</div>
 
-      <button type="submit" class="btn-submit">Generar Factura</button>
+      <!-- 🚚 Datos de Envío -->
+      <fieldset class="form-group">
+        <legend>🚚 Datos de Envío</legend>
+
+        <label for="traspaso">Traspaso ($):</label>
+        <input type="number" name="traspaso" id="traspaso" step="0.01" placeholder="Costo de envío">
+
+        <label for="cbm">CBM (m³):</label>
+        <input type="number" name="cbm" id="cbm" step="0.01" placeholder="Cubicaje total">
+      </fieldset>
+
+      <button type="submit" class="btn-submit">💾 Generar Factura</button>
     </form>
   </div>
 </body>
