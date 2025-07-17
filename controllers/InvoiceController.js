@@ -220,6 +220,9 @@ listInvoices: async (req, res) => {
   try {
     /* 1. Tomamos la cadena de búsqueda ------------------------------ */
     const q = (req.query.search || '').trim().toLowerCase();   // '' si viene vacía
+    const page = parseInt(req.query.page) || 1;
+    const limit = 15;
+    const skip = (page - 1) * limit;
 
     /* 2. Construimos el where dinámico ------------------------------ */
     const where = q
@@ -231,9 +234,14 @@ listInvoices: async (req, res) => {
         }
       : {};   // sin filtro → trae todo
 
+      // 🔢 Total para calcular páginas
+      const totalItems = await prisma.invoice.count({ where });
+
     /* 3. Traemos las facturas (ya filtradas) ------------------------ */
     const invoices = await prisma.invoice.findMany({
       where,
+      skip,
+      take: limit,
       orderBy: { date: 'desc' },
       include: { customer: true, items: true }
     });
@@ -245,10 +253,14 @@ listInvoices: async (req, res) => {
       (groupedByDate[key] ??= []).push(inv);
     });
 
+    const totalPages = Math.ceil(totalItems / limit);
+
     /* 5. Render ------------------------------------------------------ */
     res.render('invoices/InvoicesList', {
       groupedByDate,
-      search: q            // para mantener el valor en el input
+      search: q,
+      currentPage: page,
+      totalPages,
     });
 
   } catch (err) {

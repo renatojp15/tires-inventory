@@ -76,6 +76,22 @@
               </tr>
             <% }) %>
           <% }) %>
+          <!-- 📄 Paginación -->
+          <% if (totalPages > 1) { %>
+            <div class="pagination">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>">&laquo; Anterior</a>
+              <% } %>
+
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>&search=<%= search %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>">Siguiente &raquo;</a>
+              <% } %>
+            </div>
+          <% } %>
         <% } %>
       </tbody>
     </table>
