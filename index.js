@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const methodOverride = require('method-override');
 const session = require('express-session');
+const flash = require('connect-flash');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -34,6 +35,16 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 2 // 2 horas de sesión
   }
 }));
+
+// Configurar flash
+app.use(flash());
+
+// Middleware para pasar mensajes flash a todas las vistas
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+});
 
 /* -------- ① currentUser + alertas -------- */
 app.use(async (req, res, next) => {

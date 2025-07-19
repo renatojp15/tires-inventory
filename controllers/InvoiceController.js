@@ -159,8 +159,8 @@ const invoiceController = {
       }
     });
 
-    // 6. Generar código incremental
-    const invoiceCode = `INV-${created.id.toString().padStart(5, '0')}`;
+    // 6. Generar código incremental sin prefijo
+    const invoiceCode = created.id.toString().padStart(5, '0');
     await prisma.invoice.update({
       where: { id: created.id },
       data: { invoiceCode }
@@ -458,6 +458,71 @@ exportInvoiceToExcel: async (req, res) => {
     res.status(500).send('Error al exportar factura a Excel');
   }
 },
+createFromQuotation: async (req, res) => {
+  const quotationId = parseInt(req.params.id, 10);
+  if (isNaN(quotationId)) {
+    return res.status(400).json({ error: 'ID de cotización inválido' });
+  }
+    try {
+      // 1. Buscar la cotización y sus items
+      const quotation = await prisma.quotation.findUnique({
+        where: { id: quotationId },
+        include: {
+          items: true,
+          customer: true,
+        },
+      });
+
+      if (!quotation) {
+        return res.status(404).json({ error: 'Cotización no encontrada' });
+      }
+
+      // 2. Obtener el siguiente invoiceCode
+      const lastInvoice = await prisma.invoice.findFirst({
+        orderBy: { id: 'desc' },
+      });
+
+      const nextId = lastInvoice ? lastInvoice.id + 1 : 1;
+      const invoiceCode = nextId.toString().padStart(5, '0');
+
+      // 3. Crear la factura
+      const createdInvoice = await prisma.invoice.create({
+        data: {
+          invoiceCode,
+          customerId: quotation.customerId,
+          shippingCost: quotation.shippingCost || 0,
+          cbm: quotation.cbm || 0,
+          subtotal: quotation.subtotal,
+          totalAmount: quotation.totalAmount,
+          totalWeight: quotation.totalWeight || 0,
+          totalQuantity: quotation.totalQuantity || 0, // por si ya lo calculas
+          userId: req.user?.id || null, // si estás manejando sesiones
+          items: {
+            create: quotation.items.map(item => ({
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              subtotal: item.subtotal,
+              newTireId: item.newTireId || null,
+              usedTireId: item.usedTireId || null,
+            })),
+          },
+        },
+        include: {
+          items: true,
+          customer: true,
+        },
+      });
+
+      return res.status(201).json({
+        message: 'Factura creada exitosamente desde cotización',
+        invoice: createdInvoice,
+      });
+
+    } catch (error) {
+      console.error('Error al crear factura desde cotización:', error);
+      return res.status(500).json({ error: 'Error al crear factura' });
+    }
+  }
 };
 
 module.exports = invoiceController;

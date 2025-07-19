@@ -7,5 +7,9 @@ router.get('/form', isAuthenticated, quotationController.quotationForm);
 router.post('/create', isAuthenticated, quotationController.createQuotation);
 router.get('/list', isAuthenticated, quotationController.listQuotations);
 router.get('/view/:id', isAuthenticated, quotationController.viewQuotation);
+router.get('/accept/:id', isAuthenticated, quotationController.acceptQuotation);
+router.get('/reject/:id', isAuthenticated, quotationController.rejectQuotation);
+router.get('/export-excel/:id', isAuthenticated, quotationController.exportQuotationToExcel);
+router.get('/print/:id', isAuthenticated, quotationController.getPrintTableQuotation);
 
 module.exports = router;

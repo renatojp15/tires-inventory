@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/print.css" media="print">
   <link rel="stylesheet" href="/css/invoices.css">
+  <link rel="stylesheet" href="/css/navButtons.css">
   <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
@@ -34,6 +35,10 @@
   </script>
 
   <%- include('../partials/NavBar') %>
+
+  <div class="action-buttons no-print" style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 20px 5px;">
+    <a href="/invoices/list" class="btn-action">🧾 Ir a La Lista</a>
+  </div>
   
   <div class="invoice-container">
     <header class="invoice-header">
@@ -144,7 +149,6 @@
 </div>
 
       <section class="bank-info" style="margin-top: 30px; padding: 15px; border-top: 2px dashed #333;">
-  <h3 style="text-align: center;">Datos Bancarios</h3>
 
       <p><strong>BANCO INTERMEDIARIO:</strong> CITIBANK NEW YORK NY</p>
       <p><strong>SWIFT BANCO INTERMEDIARIO:</strong> C I T I U S 3 3</p>

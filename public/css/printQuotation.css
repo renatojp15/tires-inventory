@@ -1,0 +1,57 @@
+@media print {
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #000;
+  }
+
+  .print-container {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+  }
+
+  .logo-print {
+    display: block;
+    margin: 0 auto;
+    height: 100px;
+  }
+
+  .titulo-print {
+    text-align: center;
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* Oculta botones de acciones */
+  .quotation-actions,
+  nav,
+  .btn,
+  .action-buttons {
+    display: none !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  th, td {
+    border: 1px solid #333;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .totals-left, .totals-right {
+    width: 48%;
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .quotation-summary {
+    margin-top: 20px;
+  }
+}
