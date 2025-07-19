@@ -1,0 +1,136 @@
+.quotation-info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.totals-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.totals-table td {
+  padding: 6px 10px;
+  font-size: 15px;
+}
+
+.row-totals {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
+.quotation-detail {
+  padding: 2rem;
+  background-color: #fff;
+}
+
+.quotation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.quotation-actions a {
+  margin-left: 0.5rem;
+}
+
+.quotation-info {
+  margin-bottom: 1rem;
+}
+
+.quotation-items table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.quotation-items th,
+.quotation-items td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.quotation-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.totals-left, .totals-right {
+  width: 45%;
+}
+
+.total-final {
+  color: green;
+  font-weight: bold;
+}
+
+.quotation-footer {
+  margin-top: 2rem;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.logo {
+  max-width: 180px;
+  height: auto;
+}
+
+.quotation-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 40px;
+}
+
+.totals-left {
+  flex: 1;
+}
+
+.totals-right {
+  flex: 1;
+  text-align: right;
+}
+
+.quotation-actions a {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+  transition: background 0.3s;
+  margin-right: 10px;
+}
+
+.btn-green { background-color: #28a745; }
+.btn-green:hover { background-color: #218838; }
+
+.btn-red { background-color: #dc3545; }
+.btn-red:hover { background-color: #c82333; }
+
+.btn-blue { background-color: #007bff; }
+.btn-blue:hover { background-color: #0069d9; }
+
+.btn-yellow { background-color: #ffc107; color: black; }
+.btn-yellow:hover { background-color: #e0a800; }
+
+.btn-purple { background-color: #6f42c1; }
+.btn-purple:hover { background-color: #5a32a3; }

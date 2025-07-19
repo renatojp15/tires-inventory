@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/css/navButtons.css">
+  <link rel="stylesheet" href="/css/quotation.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Crear Cotización</title>
+</head>
+<body>
+
+    <%- include('../partials/navbar') %>
+
+    <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+        <a href="/quotations/list" class="btn-action">
+        🧾 Ir a lista de cotizaciones
+        </a>
+
+        <a href="/users/dashboard" class="btn-action">
+        🏠 Ir al Dashboard
+        </a>
+    </div>
+
+    <div class="form-container">
+    <h1 class="form-title">CREAR COTIZACIÓN</h1>
+
+    <form action="/quotations/create" method="POST">
+      <!-- Cliente -->
+      <div class="form-group">
+        <label for="customer">Cliente</label>
+        <select name="customer" id="customer" required>
+          <option value="">Seleccione un cliente</option>
+          <% customers.forEach(customer => { %>
+            <option value="<%= customer.id %>"><%= customer.fullName %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+        <a href="/customers/new" class="btn-action">
+        ➕ Agregar nuevo cliente
+        </a>
+    </div>
+
+      <!-- Fecha de vencimiento -->
+      <div class="form-group">
+        <label for="expirationDate">Fecha de vencimiento</label>
+        <input type="date" id="expirationDate" name="expirationDate" required>
+      </div>
+
+      <!-- Estado -->
+      <div class="form-group">
+        <label for="status">Estado</label>
+        <select id="status" name="status" required>
+          <option value="pendiente">Pendiente</option>
+          <option value="aceptada">Aceptada</option>
+          <option value="rechazada">Rechazada</option>
+        </select>
+      </div>
+
+      <!-- Traspaso -->
+      <div class="form-group">
+        <label for="traspaso">Traspaso ($)</label>
+        <input type="number" name="traspaso" id="traspaso" step="0.01" min="0" value="0">
+      </div>
+
+      <!-- Cubic Meter ^3 -->
+      <div class="form-group">
+        <label for="cbm">CBM (Cubic Meter)</label>
+        <input type="number" name="cbm" id="cbm" step="0.01" min="0" value="0">
+      </div>
+
+      <!-- Selector de llantas NUEVAS -->
+      <div class="form-group">
+        <label for="newTireSelector">Agregar llanta NUEVA a cotización</label>
+        <select id="newTireSelector">
+          <option value="">-- Seleccione una llanta nueva --</option>
+          <% newTires.forEach(tire => { %>
+            <option value="new-<%= tire.id %>" 
+                    data-type="nueva" 
+                    data-brand="<%= tire.brand.name %>" 
+                    data-description="<%= tire.size %>" 
+                    data-price="<%= tire.priceRetail %>" 
+                    data-stock="<%= tire.quantity %>" 
+                    data-weight="<%= tire.weight %>">
+              <%= tire.brand.name %> - <%= tire.size %> ($<%= tire.priceRetail %>) | Stock: <%= tire.quantity %> | Peso Unitario: <%= tire.weight %>
+            </option>
+          <% }) %>
+        </select>
+        <button type="button" onclick="addTireToQuotation('new')">➕ Agregar</button>
+      </div>
+
+      <!-- Selector de llantas USADAS -->
+      <div class="form-group">
+        <label for="usedTireSelector">Agregar llanta USADA a cotización</label>
+        <select id="usedTireSelector">
+          <option value="">-- Seleccione una llanta usada --</option>
+          <% usedTires.forEach(tire => { %>
+            <option value="used-<%= tire.id %>" 
+                    data-type="usada" 
+                    data-brand="<%= tire.brand.name %>" 
+                    data-description="<%= tire.size %>" 
+                    data-price="<%= tire.priceRetail %>" 
+                    data-stock="<%= tire.quantity %>" 
+                    data-weight="<%= tire.weight %>">
+              <%= tire.brand.name %> - <%= tire.size %> ($<%= tire.priceRetail %>) | Stock: <%= tire.quantity %> | Peso Unitario: <%= tire.weight %>
+            </option>
+          <% }) %>
+        </select>
+        <button type="button" onclick="addTireToQuotation('used')">➕ Agregar</button>
+      </div>
+
+      <!-- Tabla de llantas seleccionadas -->
+      <div class="form-group">
+        <label>Productos (llantas a cotizar)</label>
+        <table id="quotation-items" class="tire-table">
+          <thead>
+            <tr>
+              <th>Marca</th>
+              <th>Referencia</th>
+              <th>Cantidad</th>
+              <th>Peso Unitario</th> 
+              <th>Precio Unitario</th>
+              <th>Subtotal</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- filas se agregarán dinámicamente -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" style="text-align: right;">Cantidad total de llantas:</td>
+              <td colspan="2"><span id="total-quantity">0 llantas</span></td>
+            </tr>
+            <tr>
+              <td colspan="5" style="text-align: right;">Peso total:</td>
+              <td colspan="2"><span id="total-weight">0.00 kg</span></td>
+            </tr>
+            <tr>
+              <td colspan="5" style="text-align: right;"><strong>Subtotal:</strong></td>
+              <td colspan="2"><strong id="quotation-subtotal">$0.00</strong></td>
+            </tr>
+            <tr>
+              <td colspan="5" style="text-align: right;">Traspaso:</td>
+              <td colspan="2"><span id="traspaso-display">$0.00</span></td>
+            </tr>
+            <tr>
+              <td colspan="5" style="text-align: right;">CBM:</td>
+              <td colspan="2"><span id="cbm-display">$0.00</span></td>
+            </tr>
+            <tr>
+              <td colspan="5" style="text-align: right;"><strong>Total Final:</strong></td>
+              <td colspan="2"><strong id="total-final">$0.00</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Botón -->
+      <div class="form-group" style="text-align: right;">
+        <button type="submit" class="btn-submit">
+          💾 Guardar Cotización
+        </button>
+      </div>
+    </form>
+  </div>
+    
+  <script src="/js/quotations.js" defer></script>
+</body>
+</html>

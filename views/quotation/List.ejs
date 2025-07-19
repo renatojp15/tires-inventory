@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+    <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/navButtons.css">
+    <link rel="stylesheet" href="/css/quotation.css">
+    <link rel="stylesheet" href="/css/invoices.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/viewQuotation.css">
+    <title>Lista de Cotizaciones</title>
+</head>
+<body>
+
+    <%- include('../partials/navbar') %>
+
+    <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+        <a href="/quotations/form" class="btn-action">
+        ➕ Crear cotización
+        </a>
+
+        <a href="/users/dashboard" class="btn-action">
+        🏠 Ir al Dashboard
+        </a>
+    </div>
+
+    <div class="table-container">
+  <h1 class="title">LISTADO DE COTIZACIONES</h1>
+
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Estado</th>
+        <th>Fecha de creación</th>
+        <th>Vence</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% quotations.forEach(q => { %>
+        <tr>
+          <td><%= q.id %></td>
+          <td><%= q.customer.fullName %></td>
+          
+          <!-- Estado con badge -->
+          <td>
+            <span class="quotation-badge quotation-<%= q.status %>">
+              <%= q.status %>
+            </span>
+          </td>
+
+          <!-- Fecha de creación -->
+          <td>
+            <%= q.date ? new Date(q.date).toLocaleDateString() : 'Sin fecha' %>
+          </td>
+
+          <!-- Fecha de vencimiento -->
+          <td>
+            <%= q.expiresAt ? new Date(q.expiresAt).toLocaleDateString() : 'Sin vencimiento' %>
+          </td>
+
+          <!-- Acciones -->
+          <td>
+            <a href="/quotations/view/<%= q.id %>" class="btn-view">🔍 Ver</a>
+            <% if (q.status !== 'aceptada') { %>
+              <form action="/quotations/delete/<%= q.id %>" method="POST" style="display:inline;">
+                <button class="btn-delete" onclick="return confirm('¿Seguro que quieres eliminar esta cotización?')">🗑️</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

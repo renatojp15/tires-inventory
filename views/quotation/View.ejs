@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+    <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/navButtons.css">
+    <link rel="stylesheet" href="/css/quotation.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/invoices.css">
+    <link rel="stylesheet" href="/css/viewQuotation.css">
+    <title>Detalle de La Cotización</title>
+</head>
+<body>
+
+    <!-- views/quotation/View.ejs -->
+<%- include('../partials/navbar') %>
+
+    <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+        <a href="/quotations/list" class="btn-action">
+          🧾 Ir a La Lista
+        </a>
+    </div>
+
+<div class="quotation-detail">
+  
+  <div class="logo-container">
+    <img src="/img/LOGO-SONIX-LTD.png" alt="Logo de la empresa" class="logo">
+  </div>
+
+  <!-- SECCIÓN 1: ENCABEZADO -->
+  <div class="quotation-header">
+    <h2>Cotización 2025-<%= quotation.quotationCode %></h2>
+    <div class="quotation-status">
+      Estado: <strong><%= quotation.status %></strong>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: INFORMACIÓN DE FECHAS Y CLIENTE -->
+  <div class="quotation-info">
+    <div>
+      <strong>Fecha de emisión:</strong> <%= new Date(quotation.date).toLocaleDateString() %>
+    </div>
+    <div>
+      <strong>Fecha de vencimiento:</strong> <%= new Date(quotation.expiresAt).toLocaleDateString() %>
+    </div>
+    <div>
+      <strong>Cliente:</strong> <%= quotation.customer.fullName %>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: TABLA DE ÍTEMS -->
+  <div class="quotation-items">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Peso Unitario (kg)</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% quotation.items.forEach((item, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= item.newTire ? item.newTire.size : item.usedTire?.size %></td>
+            <td><%= item.quantity %></td>
+            <td><%= item.newTire ? item.newTire.weight.toFixed(2) : item.usedTire?.weight?.toFixed(2) || "N/A" %></td>
+            <td>$<%= item.unitPrice.toFixed(2) %></td>
+            <td>$<%= item.subtotal.toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECCIÓN 4: TOTALES -->
+  <div class="quotation-summary">
+    <div class="totals-left">
+      <p><strong>Total de llantas:</strong> <%= quotation.items.reduce((acc, item) => acc + item.quantity, 0) %></p>
+      <p><strong>Peso total:</strong> <%= quotation.totalWeight.toFixed(2) %> kg</p>
+      <% if (quotation.observations) { %>
+        <p><strong>Observaciones:</strong> <%= quotation.observations %></p>
+      <% } %>
+    </div>
+
+    <div class="totals-right">
+      <p><strong>Traspaso:</strong> $<%= quotation.traspaso.toFixed(2) %></p>
+      <p><strong>CBM:</strong> <%= quotation.cbm.toFixed(2) %> m³</p>
+      <p><strong>Subtotal:</strong> $<%= quotation.subtotal.toFixed(2) %></p>
+      <p><strong>Total Final:</strong> <span class="total-final">$<%= quotation.totalAmount.toFixed(2) %></span></p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: BLOQUE DE TEXTO FIJO (si aplica) -->
+  <div class="quotation-footer">
+    <div class="quotation-actions">
+      <% if (quotation.status === 'pendiente') { %>
+        <a href="/quotations/accept/<%= quotation.id %>" class="btn-green">✅ Aceptar</a>
+        <a href="/quotations/reject/<%= quotation.id %>" class="btn-red">❌ Rechazar</a>
+      <% } %>
+      <a href="/quotations/print/<%= quotation.id %>" class="btn-blue">🖨️ Imprimir</a>
+      <a href="/quotations/export/<%= quotation.id %>" class="btn-yellow">📤 Exportar</a>
+      <a href="/invoices/from-quotation/<%= quotation.id %>" class="btn-purple">💳 Convertir a Factura</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

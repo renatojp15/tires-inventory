@@ -1,0 +1,194 @@
+.form-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #444;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: #fdfdfd;
+}
+
+.btn-submit {
+  background-color: #0066cc;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover {
+  background-color: #004c99;
+}
+
+.tire-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+}
+
+.tire-table th,
+.tire-table td {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.tire-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.btn-delete-row {
+  background: none;
+  border: none;
+  color: #cc0000;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Enlace para agregar cliente */
+.btn-link-add {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-link-add:hover {
+  text-decoration: underline;
+  color: #004c99;
+}
+
+/* Estilo hover para filas de tabla */
+.tire-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Celdas más suaves */
+.tire-table td {
+  vertical-align: middle;
+  font-size: 15px;
+  background-color: #fff;
+}
+
+/* Mejora en inputs dentro de celdas (como cantidad o precio) */
+.tire-table input[type="number"] {
+  width: 80px;
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+}
+
+.amount {
+  text-align: right;
+  font-weight: 600;
+  color: #222;
+}
+
+.quotation-badge {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: white;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.quotation-pendiente {
+  background-color: #ffc107; /* rojo */
+}
+
+.quotation-aceptada {
+  background-color: #28a745; /* verde */
+}
+
+.quotation-rechazada {
+  background-color: #fa1212; /* amarillo */
+  color: rgb(253, 254, 255);
+}
+
+.styled-table {
+  width: 95%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.styled-table th,
+.styled-table td {
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.styled-table thead {
+  background-color: #f2f2f2;
+  color: #333;
+  font-weight: bold;
+}
+
+.styled-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #e6f7ff;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-view,
+.btn-delete {
+  padding: 5px 10px;
+  margin-right: 5px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btn-view {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
