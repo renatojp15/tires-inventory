@@ -200,14 +200,21 @@ const invoice = await prisma.invoice.findUnique({
 }
 });
 
+    // 🔔 Alertas activas
+    const alerts = await prisma.stockAlert.findMany({
+      where: { resolved: false },
+      orderBy: { createdAt: 'desc' }
+    });
+
 if (!invoice) {
   return res.status(404).send('Factura no encontrada');
 }
         res.render('invoices/show', {
+          alertSound:true,
           invoice,
-          isPdf: false, // 👈 Esto es lo que faltaba
-          host: req.headers.host, // 👈 Por si acaso necesitas la URL absoluta del logo
-          user: req.session.user, // 👈 agregar esto
+          isPdf: false,
+          host: req.headers.host,
+          user: req.session.user, 
         });
         }
     catch(error){
@@ -215,7 +222,7 @@ if (!invoice) {
         res.status(500).send('ERROR AL MOSTRAR LA FACTURA');
     }
   },
-  // controllers/InvoiceController.js
+
 listInvoices: async (req, res) => {
   try {
     /* 1. Tomamos la cadena de búsqueda ------------------------------ */
@@ -458,71 +465,92 @@ exportInvoiceToExcel: async (req, res) => {
     res.status(500).send('Error al exportar factura a Excel');
   }
 },
-createFromQuotation: async (req, res) => {
-  const quotationId = parseInt(req.params.id, 10);
-  if (isNaN(quotationId)) {
-    return res.status(400).json({ error: 'ID de cotización inválido' });
-  }
-    try {
-      // 1. Buscar la cotización y sus items
-      const quotation = await prisma.quotation.findUnique({
-        where: { id: quotationId },
-        include: {
-          items: true,
-          customer: true,
-        },
-      });
+    createFromQuotation: async (req, res) => {
+      const quotationId = parseInt(req.params.id, 10);
 
-      if (!quotation) {
-        return res.status(404).json({ error: 'Cotización no encontrada' });
+      if (isNaN(quotationId)) {
+        return res.status(400).json({ error: 'ID de cotización inválido' });
       }
 
-      // 2. Obtener el siguiente invoiceCode
-      const lastInvoice = await prisma.invoice.findFirst({
-        orderBy: { id: 'desc' },
-      });
-
-      const nextId = lastInvoice ? lastInvoice.id + 1 : 1;
-      const invoiceCode = nextId.toString().padStart(5, '0');
-
-      // 3. Crear la factura
-      const createdInvoice = await prisma.invoice.create({
-        data: {
-          invoiceCode,
-          customerId: quotation.customerId,
-          shippingCost: quotation.shippingCost || 0,
-          cbm: quotation.cbm || 0,
-          subtotal: quotation.subtotal,
-          totalAmount: quotation.totalAmount,
-          totalWeight: quotation.totalWeight || 0,
-          totalQuantity: quotation.totalQuantity || 0, // por si ya lo calculas
-          userId: req.user?.id || null, // si estás manejando sesiones
-          items: {
-            create: quotation.items.map(item => ({
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              subtotal: item.subtotal,
-              newTireId: item.newTireId || null,
-              usedTireId: item.usedTireId || null,
-            })),
+      try {
+        // 1. Buscar la cotización y sus items
+        const quotation = await prisma.quotation.findUnique({
+          where: { id: quotationId },
+          include: {
+            items: true,
+            customer: true,
           },
-        },
-        include: {
-          items: true,
-          customer: true,
-        },
-      });
+        });
 
-      return res.status(201).json({
-        message: 'Factura creada exitosamente desde cotización',
-        invoice: createdInvoice,
-      });
+        if (!quotation) {
+          return res.status(404).json({ error: 'Cotización no encontrada' });
+        }
 
-    } catch (error) {
-      console.error('Error al crear factura desde cotización:', error);
-      return res.status(500).json({ error: 'Error al crear factura' });
+        // 2. Obtener el siguiente invoiceCode
+        const lastInvoice = await prisma.invoice.findFirst({
+          orderBy: { id: 'desc' },
+        });
+
+        const nextId = lastInvoice ? lastInvoice.id + 1 : 1;
+        const invoiceCode = nextId.toString().padStart(5, '0');
+
+        // 3. Crear la factura
+        const createdInvoice = await prisma.invoice.create({
+          data: {
+            invoiceCode,
+            customerId: quotation.customerId,
+            shippingCost: quotation.traspaso || 0,
+            cbm: quotation.cbm || 0,
+            subtotal: quotation.subtotal,
+            totalAmount: quotation.totalAmount,
+            totalWeight: quotation.totalWeight || 0,
+            totalQuantity: quotation.totalQuantity || 0,
+            userId: req.user?.id || null,
+            items: {
+              create: quotation.items.map(item => ({
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                subtotal: item.subtotal,
+                newTireId: item.newTireId || null,
+                usedTireId: item.usedTireId || null,
+              })),
+            },
+          },
+          include: {
+            items: true,
+            customer: true,
+          },
+        });
+
+      // 4. Actualizar el stock y verificar alertas
+      for (const item of quotation.items) {
+        if (item.newTireId) {
+          const updatedTire = await prisma.newTire.update({
+            where: { id: item.newTireId },
+            data: {
+              quantity: { decrement: item.quantity }
+            }
+          });
+          await alertsController.createAlertIfNeeded('new', updatedTire);
+        }
+
+        if (item.usedTireId) {
+          const updatedTire = await prisma.usedTire.update({
+            where: { id: item.usedTireId },
+            data: {
+              quantity: { decrement: item.quantity }
+            }
+          });
+          await alertsController.createAlertIfNeeded('used', updatedTire);
+        }
+      }
+        console.log('✅ FACTURA CREADA DESDE COTIZACIÓN Y STOCK ACTUALIZADO');
+        res.redirect(`/invoices/${createdInvoice.id}?success=Factura creada exitosamente`);
+      } catch (error) {
+        console.error('ERROR AL CREAR FACTURA DESDE COTIZACIÓN:', error);
+        res.status(500).send('ERROR INTERNO AL CREAR FACTURA DESDE COTIZACIÓN');
+      }
     }
-  }
 };
 
 module.exports = invoiceController;

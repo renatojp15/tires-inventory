@@ -119,7 +119,6 @@ const usedTiresController = {
       res.render('usedTires/UsedTiresList', {
         tiresGrouped,
         search,
-        alerts,
         currentPage: page,
         totalPages,
         alertSound: true
@@ -293,7 +292,7 @@ const usedTiresController = {
                 /* 4 - Enviar archivo al cliente */
                 res.setHeader(
                   'Content-Disposition',
-                  `attachment; filename="inventario_${req.query.from}_${req.query.to}.xlsx"`
+                  `attachment; filename="inventario_llantas_usadas${req.query.from}_${req.query.to}.xlsx"`
                 );
                 res.setHeader(
                   'Content-Type',

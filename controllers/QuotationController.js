@@ -30,100 +30,142 @@ const quotationController = {
         }
     },
     createQuotation: async (req, res) => {
-  try {
-    const {
-      customer,
-      expirationDate,
-      status,
-      traspaso,
-      cbm,
-      observations,
-      items
-    } = req.body;
-
-    if (!items || items.length === 0) {
-      return res.status(400).send('Debe agregar al menos una llanta a la cotización.');
-    }
-
-    // Calcular totales
-    let subtotal = 0;
-    let totalWeight = 0;
-
-    const parsedItems = items.map(item => {
-      const quantity = parseInt(item.quantity);
-      const unitPrice = parseFloat(item.unitPrice);
-      const weight = parseFloat(item.weight || 0); // Opcional
-
-      const itemSubtotal = quantity * unitPrice;
-      subtotal += itemSubtotal;
-      totalWeight += quantity * weight;
-
-      return {
-        quantity,
-        unitPrice,
-        subtotal: itemSubtotal,
-        newTireId: item.tireType === 'new' ? parseInt(item.tireId) : null,
-        usedTireId: item.tireType === 'used' ? parseInt(item.tireId) : null
-      };
-    });
-
-    const parsedTraspaso = parseFloat(traspaso || 0);
-    const parsedCbm = parseFloat(cbm || 0);
-    const totalAmount = subtotal + parsedTraspaso + parsedCbm;
-
-    // Generar código de cotización
-    const lastQuotation = await prisma.quotation.findFirst({
-      orderBy: { id: 'desc' }
-    });
-
-    const nextId = lastQuotation ? lastQuotation.id + 1 : 1;
-    const quotationCode = `COT-${String(nextId).padStart(4, '0')}`;
-
-    // Crear cotización
-    const quotation = await prisma.quotation.create({
-      data: {
-        customerId: parseInt(customer),
-        userId: req.session.user?.id || 1,
-        expiresAt: new Date(expirationDate),
+    try {
+      const {
+        customer,
+        expirationDate,
         status,
-        traspaso: parsedTraspaso,
-        cbm: parsedCbm,
-        subtotal,
-        totalAmount,
-        totalWeight,
-        quotationCode,
-        observations: observations || null,
-        items: {
-          create: parsedItems
-        }
-      },
-      include: {
-        items: true
-      }
-    });
+        traspaso,
+        cbm,
+        observations,
+        items
+      } = req.body;
 
-    res.redirect(`/quotations/view/${quotation.id}`);
-  } catch (error) {
-    console.error('ERROR AL CREAR LA COTIZACIÓN:', error);
-    res.status(500).send('ERROR AL CREAR LA COTIZACIÓN');
-  }
+      if (!items || items.length === 0) {
+        return res.status(400).send('Debe agregar al menos una llanta a la cotización.');
+      }
+
+      // Calcular totales
+      let subtotal = 0;
+      let totalWeight = 0;
+
+      const parsedItems = items.map(item => {
+        const quantity = parseInt(item.quantity);
+        const unitPrice = parseFloat(item.unitPrice);
+        const weight = parseFloat(item.weight || 0); // Opcional
+
+        const itemSubtotal = quantity * unitPrice;
+        subtotal += itemSubtotal;
+        totalWeight += quantity * weight;
+
+        return {
+          quantity,
+          unitPrice,
+          subtotal: itemSubtotal,
+          newTireId: item.tireType === 'new' ? parseInt(item.tireId) : null,
+          usedTireId: item.tireType === 'used' ? parseInt(item.tireId) : null
+        };
+      });
+
+      const parsedTraspaso = parseFloat(traspaso || 0);
+      const parsedCbm = parseFloat(cbm || 0);
+      const totalAmount = subtotal + parsedTraspaso + parsedCbm;
+
+      // Generar código de cotización
+      const lastQuotation = await prisma.quotation.findFirst({
+        orderBy: { id: 'desc' }
+      });
+
+      const nextId = lastQuotation ? lastQuotation.id + 1 : 1;
+      const quotationCode = String(nextId).padStart(4, '0');
+
+      // Crear cotización
+      const quotation = await prisma.quotation.create({
+        data: {
+          customerId: parseInt(customer),
+          userId: req.session.user?.id || 1,
+          expiresAt: new Date(expirationDate),
+          status,
+          traspaso: parsedTraspaso,
+          cbm: parsedCbm,
+          subtotal,
+          totalAmount,
+          totalWeight,
+          quotationCode,
+          observations: observations || null,
+          items: {
+            create: parsedItems
+          }
+        },
+        include: {
+          items: true
+        }
+      });
+
+      res.redirect(`/quotations/view/${quotation.id}`);
+    } catch (error) {
+      console.error('ERROR AL CREAR LA COTIZACIÓN:', error);
+      res.status(500).send('ERROR AL CREAR LA COTIZACIÓN');
+    }
 },
   listQuotations: async (req, res) => {
     try {
-        const quotations = await prisma.quotation.findMany({
+      const search = (req.query.search || '').trim().toLowerCase();
+      const page = parseInt(req.query.page) || 1;
+      const limit = 15;
+      const skip = (page - 1) * limit;
+
+      // Filtro dinámico
+      const where = search
+        ? {
+            OR: [
+              { quotationCode: { contains: search, mode: 'insensitive' } },
+              {
+                customer: {
+                  fullName: { contains: search, mode: 'insensitive' }
+                }
+              }
+            ]
+          }
+        : {};
+
+      // 🔢 Total para paginación
+      const totalItems = await prisma.quotation.count({ where });
+
+      // 🧾 Cotizaciones paginadas
+      const quotations = await prisma.quotation.findMany({
+        where,
+        skip,
+        take: limit,
         orderBy: { date: 'desc' },
         include: {
-            customer: true,
-            items: true,
-        },
-        });
+          customer: true,
+          items: true
+        }
+      });
 
-        res.render('quotation/List', { quotations });
+      // 🔔 Alertas activas
+      const alerts = await prisma.stockAlert.findMany({
+        where: { resolved: false },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      const totalPages = Math.ceil(totalItems / limit);
+
+      res.render('quotation/List', {
+        quotations,
+        search,
+        currentPage: page,
+        totalPages,
+        alerts,
+        alertSound: true
+      });
+
     } catch (error) {
-        console.error('ERROR AL LISTAR LAS COTIZACIONES:', error);
-        res.status(500).send('ERROR AL LISTAR LAS COTIZACIONES');
+      console.error('❌ ERROR AL LISTAR LAS COTIZACIONES:', error);
+      res.status(500).send('ERROR AL LISTAR LAS COTIZACIONES');
     }
-    },
+  },
     viewQuotation: async (req, res) => {
         try {
             const { id } = req.params;
@@ -150,9 +192,9 @@ const quotationController = {
             }
 
             res.render('quotation/View', { quotation, 
-              isPdf: false, // 👈 Esto es lo que faltaba
-              host: req.headers.host, // 👈 Por si acaso necesitas la URL absoluta del logo
-              user: req.session.user, // 👈 agregar esto
+              isPdf: false, 
+              host: req.headers.host, 
+              user: req.session.user, 
             });
         } catch (error) {
             console.error('ERROR AL VER LA COTIZACIÓN:', error);
@@ -373,6 +415,32 @@ const quotationController = {
         } catch (error) {
           console.error('ERROR GENERANDO PDF:', error);
           res.status(500).send('ERROR GENERANDO PDF');
+        }
+      },
+      deleteQuotation: async(req, res) => {
+        const quotationId = parseInt(req.params.id, 10);
+
+        if (isNaN(quotationId)) {
+          return res.status(400).send('ID de cotización inválido');
+        }
+        
+        try{
+          // Primero eliminamos los items relacionados
+            await prisma.quotationItem.deleteMany({
+              where: { quotationId },
+            });
+
+            // Luego eliminamos la cotización
+            await prisma.quotation.delete({
+              where: { id: quotationId },
+            });
+
+            console.log(`Cotización ${quotationId} eliminada con éxito`);
+            res.redirect('/quotations/list');
+        }
+        catch(error){
+          console.error('❌ ERROR AL ELIMINAR LA COTIZACIÓN:', error);
+          res.status(500).send('ERROR INTERNO AL ELIMINAR LA COTIZACIÓN');
         }
       }
 };
