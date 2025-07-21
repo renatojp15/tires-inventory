@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png" />
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/css/quotation.css" />
+  <link rel="stylesheet" href="/css/invoices.css" />
+  <link rel="stylesheet" href="/css/viewQuotation.css" />
+  <link rel="stylesheet" href="/css/navButtons.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <title>Lista de Tipos de Vehículos</title>
+</head>
+<body>
+
+<%- include('../partials/navbar') %>
+
+<div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+  <a href="/tiretypes/form" class="btn-action">➕ Registrar Cliente</a>
+  <a href="/users/dashboard" class="btn-action">🏠 Ir al Dashboard</a>
+</div>
+
+<div class="table-container">
+  <h1 class="title" style="text-align: center; margin-bottom: 15px;">LISTADO DE TIPOS DE VEHÍCULOS</h1>
+
+  <!-- 🔍 Búsqueda -->
+  <form method="GET" action="/tiretypes/list" class="search-bar">
+    <input
+      type="text"
+      name="search"
+      placeholder="Buscar por tipo de vehículo"
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+    />
+    <button type="submit">Buscar</button>
+  </form>
+
+  <% if (tireTypes.length === 0) { %>
+    <p style="text-align: center; margin-top: 20px;">❌ No hay tipos de vehículos registrados.</p>
+  <% } else { %>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tipo de Vehículo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tireTypes.forEach(c => { %>
+          <tr>
+            <td><%= c.id %></td>
+            <td><%= c.name %></td>
+            <td>
+              <a href="/tiretypes/edit/<%= c.id %>" class="btn-view">✏️ Editar</a>
+              <form action="/tiretypes/delete/<%= c.id %>" method="POST" style="display:inline;">
+                <button class="btn-delete" onclick="return confirm('¿Seguro que quieres eliminar este tipo de vehículo?')">🗑️</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+</body>
+</html>

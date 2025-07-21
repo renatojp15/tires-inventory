@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <title><%= customer ? 'Editar Cliente' : 'Registro de Cliente' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navButtons.css">
+</head>
+<body>
+
+  <%- include('../partials/navbar') %>
+
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+    <a href="/customers/list" class="btn-action">
+      📋 Ir a la lista de clientes
+    </a>
+    <a href="/users/dashboard" class="btn-action">
+      🏠 Ir al Dashboard
+    </a>
+  </div>
+
+  <div class="container">
+    <h1 class="titulo"><%= customer ? 'EDITAR CLIENTE' : 'REGISTRO DE CLIENTE' %></h1>
+    
+    <form action="<%= action %>" method="POST">
+      
+      <div class="form-group">
+        <label for="fullName">Nombre completo</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Ej: Juan Pérez" value="<%= customer?.fullName || '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="idNumber">Cédula o RUC</label>
+        <input type="text" id="idNumber" name="idNumber" placeholder="Ej: 8-765-1234 o RUC123456" value="<%= customer?.idNumber || '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Teléfono</label>
+        <input type="text" id="phone" name="phone" placeholder="Ej: 6123-4567" value="<%= customer?.phone || '' %>">
+      </div>
+
+      <div class="form-group">
+        <label for="address">Dirección</label>
+        <textarea id="address" name="address" rows="3" placeholder="Ej: Calle 50, Ciudad de Panamá"><%= customer?.address || '' %></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">
+          <%= customer ? 'ACTUALIZAR CLIENTE' : 'REGISTRAR CLIENTE' %>
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

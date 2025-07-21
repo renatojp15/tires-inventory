@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png" />
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/css/quotation.css" />
+  <link rel="stylesheet" href="/css/invoices.css" />
+  <link rel="stylesheet" href="/css/viewQuotation.css" />
+  <link rel="stylesheet" href="/css/navButtons.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <title>Lista de Clientes</title>
+</head>
+<body>
+
+<%- include('../partials/navbar') %>
+
+<div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+  <a href="/customers/form" class="btn-action">➕ Registrar Cliente</a>
+  <a href="/users/dashboard" class="btn-action">🏠 Ir al Dashboard</a>
+</div>
+
+<div class="table-container">
+  <h1 class="title" style="text-align: center; margin-bottom: 15px;">LISTADO DE CLIENTES</h1>
+
+  <!-- 🔍 Búsqueda -->
+  <form method="GET" action="/customers/list" class="search-bar">
+    <input
+      type="text"
+      name="search"
+      placeholder="Buscar por nombre o cédula..."
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+    />
+    <button type="submit">Buscar</button>
+  </form>
+
+  <% if (customers.length === 0) { %>
+    <p style="text-align: center; margin-top: 20px;">❌ No hay clientes registrados.</p>
+  <% } else { %>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre Completo</th>
+          <th>Cédula</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% customers.forEach(c => { %>
+          <tr>
+            <td><%= c.id %></td>
+            <td><%= c.fullName %></td>
+            <td><%= c.idNumber %></td>
+            <td><%= c.phone %></td>
+            <td><%= c.address %></td>
+            <td>
+              <a href="/customers/edit/<%= c.id %>" class="btn-view">✏️ Editar</a>
+              <form action="/customers/delete/<%= c.id %>" method="POST" style="display:inline;">
+                <button class="btn-delete" onclick="return confirm('¿Seguro que quieres eliminar este cliente?')">🗑️</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <!-- 📄 Paginación -->
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% if (currentPage > 1) { %>
+          <a href="?page=<%= currentPage - 1 %>&search=<%= search %>">&laquo; Anterior</a>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="?page=<%= i %>&search=<%= search %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <a href="?page=<%= currentPage + 1 %>&search=<%= search %>">Siguiente &raquo;</a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+</body>
+</html>
