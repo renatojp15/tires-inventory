@@ -19,22 +19,41 @@ const customerController = {
     },
     createCustomer: async (req, res) => {
         try {
-            const { fullName, idNumber, phone, address } = req.body;
+            let { fullName, idNumber, phone, address } = req.body;
 
-            await prisma.customer.create({
-            data: {
-                fullName,
-                idNumber,
-                phone,
-                address,
-            },
+            // Normalizamos el nombre (minúsculas, sin espacios extras)
+            const normalizedName = fullName.trim().toLowerCase();
+
+            // Buscar si ya existe un cliente con ese nombre normalizado
+            const existingCustomer = await prisma.customer.findFirst({
+                where: {
+                    fullName: {
+                        equals: normalizedName,
+                        mode: 'insensitive', // Insensible a mayúsculas/minúsculas
+                    },
+                },
             });
+
+            if (existingCustomer) {
+                return res.status(400).send('Ya existe un cliente con ese nombre.');
+            }
+
+            // Guardamos el nombre normalizado
+            await prisma.customer.create({
+                data: {
+                    fullName: normalizedName,
+                    idNumber,
+                    phone,
+                    address,
+                },
+            });
+
             res.redirect('/quotations/form');
         } catch (error) {
             console.error('ERROR AL REGISTRAR CLIENTE:', error);
             res.status(500).send('ERROR AL REGISTRAR CLIENTE');
         }
-        },
+    },
     editCustomerForm: async(req, res) => {
         try {
             const { id } = req.params;

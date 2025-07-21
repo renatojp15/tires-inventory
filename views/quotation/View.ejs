@@ -29,14 +29,18 @@
     <img src="<%= isPdf ? `http://${host}/img/LOGO-SONIX-LTD.png` : '/img/LOGO-SONIX-LTD.png' %>" alt="Logo de la empresa" class="logo">
   </div>
 
+  <% if (quotation.customer.idNumber && quotation.customer.idNumber.trim()) { %>
+    <p style="text-align: center;">
+      <strong>RUC</strong><%= quotation.customer.idNumber %>
+    </p>
+  <% } %>
+
+
   <p style="text-align: center; margin-bottom: 15px;">LOTE NO 1 DE LA MANZANA (26-A), AVENIDA SAN ELADIO Y CALLE 17 DE LA ZONA LIBRE DE COLÓN, PANAMÁ</p>
 
   <!-- ENCABEZADO -->
   <div class="quotation-header">
-    <h2>Cotización 2025-<%= quotation.quotationCode %></h2>
-    <div class="quotation-status no-print">
-      Estado: <strong><%= quotation.status %></strong>
-    </div>
+    <h2 class="quotation-title">Cotización 2025-<%= quotation.quotationCode %></h2>
   </div>
 
   <!-- INFO DE FECHAS Y CLIENTE -->
@@ -139,6 +143,9 @@
       </form>
     </div>
     <% } %>
+  </div>
+  <div class="quotation-status-footer no-print">
+    Estado: <strong><%= quotation.status %></strong>
   </div>
 </div>
 </body>

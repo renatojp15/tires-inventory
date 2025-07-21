@@ -18,15 +18,31 @@ const vehicleTypeController = {
     create: async (req, res) => {
         try {
             const { name } = req.body;
-            await prisma.tireType.create({
-            data: { name }
+
+            // Validar si ya existe
+            const existingType = await prisma.tireType.findFirst({
+                where: {
+                    name: {
+                        equals: name,
+                        mode: 'insensitive', // Opcional: ignora mayúsculas/minúsculas
+                    },
+                },
             });
+
+            if (existingType) {
+                return res.status(400).send('Ya existe un tipo de llanta con ese nombre.');
+            }
+
+            await prisma.tireType.create({
+                data: { name }
+            });
+
             res.redirect('/tiretypes/list');
         } catch (error) {
             console.error('Error al crear tipo de vehículo:', error);
             res.status(500).send('Error al crear tipo de vehículo');
         }
-        },
+    },
     list: async (req, res) => {
         try {
         const search = req.query.search || '';

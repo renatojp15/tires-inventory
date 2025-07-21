@@ -35,9 +35,22 @@
 
 .quotation-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* centramos horizontalmente */
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 50px;
+}
+
+.quotation-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.quotation-status-footer {
+  text-align: right;
+  margin-top: 2rem;
+  font-size: 1rem;
+  font-weight: bold;
 }
 
 .quotation-actions a {
