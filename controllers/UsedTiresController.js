@@ -215,7 +215,7 @@ const usedTiresController = {
       where: { id: tireId },
     });
 
-    res.redirect('/newtires/list');
+    res.redirect('/usedtires/list');
   } catch (error) {
     console.error('ERROR AL ELIMINAR LA LLANTA:', error);
     res.status(500).send('ERROR AL ELIMINAR LA LLANTA');
