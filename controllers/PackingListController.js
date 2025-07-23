@@ -7,45 +7,82 @@ const fs = require('fs');
 const packingListController = {
     list: async (req, res) => {
         const page = parseInt(req.query.page) || 1;
-        const limit = 10; // puedes cambiar el límite según prefieras
+        const limit = 10;
         const offset = (page - 1) * limit;
+        const search = req.query.search?.trim().toLowerCase() || '';
 
         try {
+            // Filtro de búsqueda condicional
+            const searchFilter = search
+                ? {
+                    OR: [
+                        {
+                            packingCode: {
+                                contains: search,
+                                mode: 'insensitive',
+                            },
+                        },
+                        {
+                            invoice: {
+                                invoiceCode: {
+                                    contains: search,
+                                    mode: 'insensitive',
+                                },
+                            },
+                        },
+                        {
+                            invoice: {
+                                customer: {
+                                    fullName: {
+                                        contains: search,
+                                        mode: 'insensitive',
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                }
+                : {};
+
             const [totalCount, packingList] = await Promise.all([
-            prisma.packingList.count(),
-            prisma.packingList.findMany({
-                skip: offset,
-                take: limit,
-                orderBy: { createdAt: 'desc' },
-                include: {
-                invoice: {
+                prisma.packingList.count({
+                    where: searchFilter,
+                }),
+                prisma.packingList.findMany({
+                    where: searchFilter,
+                    skip: offset,
+                    take: limit,
+                    orderBy: { createdAt: 'desc' },
                     include: {
-                    customer: true, // 🔥 importante para evitar el error en la vista
+                        invoice: {
+                            include: {
+                                customer: true,
+                            },
+                        },
+                        items: {
+                            include: {
+                                newTire: true,
+                                usedTire: true,
+                            },
+                        },
                     },
-                },
-                items: {
-                    include: {
-                    newTire: true,
-                    usedTire: true,
-                    },
-                },
-                },
-            }),
+                }),
             ]);
 
             const totalPages = Math.ceil(totalCount / limit);
 
             res.render('packingLists/List', {
-            packingList,
-            currentPage: page,
-            totalPages,
-            search: req.query.search || '', // por si más adelante activas búsqueda
+                packingList,
+                currentPage: page,
+                totalPages,
+                search: req.query.search || '',
             });
+
         } catch (error) {
             console.error('Error al obtener listas de empaque:', error);
             res.status(500).send('Error al cargar las listas de empaque');
         }
-        },
+    },
     form: async (req, res) => {
         try {
             const invoices = await prisma.invoice.findMany({
