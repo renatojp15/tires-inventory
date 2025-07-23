@@ -331,43 +331,43 @@ listInvoices: async (req, res) => {
     const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
       include: {
-        items: true
-      }
+        items: true,
+      },
     });
 
     if (!invoice) {
       return res.status(404).send('Factura no encontrada');
     }
 
-    // Devolver cantidades al inventario
+   // Devolver cantidades al inventario y resolver alertas si hay stock bajo
     for (const item of invoice.items) {
       const qty = item.quantity;
 
-      if (item.tireType === 'new') {
-        await prisma.newTire.update({
-          where: { id: item.tireId },
-          data: {
-            quantity: { increment: qty }
-          }
+      if (item.newTireId) {
+        const updatedTire = await prisma.newTire.update({
+          where: { id: item.newTireId },
+          data: { quantity: { increment: qty } },
         });
-      } else if (item.tireType === 'used') {
-        await prisma.usedTire.update({
-          where: { id: item.tireId },
-          data: {
-            quantity: { increment: qty }
-          }
+
+        await alertsController.createAlertIfNeeded('new', updatedTire);
+      } else if (item.usedTireId) {
+        const updatedTire = await prisma.usedTire.update({
+          where: { id: item.usedTireId },
+          data: { quantity: { increment: qty } },
         });
+
+        await alertsController.createAlertIfNeeded('used', updatedTire);
       }
     }
 
     // Borrar los items relacionados
     await prisma.invoiceItem.deleteMany({
-      where: { invoiceId }
+      where: { invoiceId },
     });
 
     // Borrar la factura
     await prisma.invoice.delete({
-      where: { id: invoiceId }
+      where: { id: invoiceId },
     });
 
     res.redirect('/invoices/list');

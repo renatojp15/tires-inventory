@@ -70,6 +70,7 @@ model NewTire {
   invoiceItems   InvoiceItem[]   @relation("NewTireToInvoiceItem")
   quotationItems QuotationItem[] @relation("NewTireToQuotationItem")
   alerts         StockAlert[]    @relation("NewTireStockAlert") // ← relación con StockAlert
+  packingListItems PackingListItem[]
 }
 
 /**
@@ -97,6 +98,7 @@ model UsedTire {
   invoiceItems   InvoiceItem[]   @relation("UsedTireToInvoiceItem")
   quotationItems QuotationItem[] @relation("UsedTireToQuotationItem")
   alerts         StockAlert[]    @relation("UsedTireStockAlert") // ← relación con StockAlert
+  packingListItems PackingListItem[]
 }
 
 /**
@@ -165,6 +167,7 @@ model Invoice {
   customer Customer      @relation(fields: [customerId], references: [id])
   user     User?         @relation(fields: [userId], references: [id])
   items    InvoiceItem[]
+  packingLists PackingList[]
 }
 
 /**
@@ -222,4 +225,36 @@ model QuotationItem {
   quotation Quotation @relation(fields: [quotationId], references: [id])
   newTire   NewTire?  @relation("NewTireToQuotationItem", fields: [newTireId], references: [id])
   usedTire  UsedTire? @relation("UsedTireToQuotationItem", fields: [usedTireId], references: [id])
+}
+
+/**
+ * ---------- LISTAS DE EMPAQUE ----------
+ */
+model PackingList {
+  id            Int      @id @default(autoincrement())
+  packingCode          String   @unique // Código tipo "PL-0001"
+  createdAt     DateTime @default(now())
+  invoiceId     Int      // Relación directa con la factura
+  totalQuantity Int      @default(0)
+  totalWeight   Float    @default(0)
+  cbm           Float    @default(0)
+  observations  String?
+
+  invoice Invoice         @relation(fields: [invoiceId], references: [id])
+  items   PackingListItem[]
+}
+
+model PackingListItem {
+  id            Int   @id @default(autoincrement())
+  packingListId Int
+  newTireId     Int?
+  usedTireId    Int?
+  quantity      Int
+  unitWeight    Float
+  subtotalWeight Float // quantity * unitWeight
+  cbm            Float  // agregar este campo
+
+  packingList PackingList @relation(fields: [packingListId], references: [id])
+  newTire     NewTire?    @relation(fields: [newTireId], references: [id])
+  usedTire    UsedTire?   @relation(fields: [usedTireId], references: [id])
 }

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png" />
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/css/navButtons.css" />
+  <link rel="stylesheet" href="/css/quotation.css" />
+  <link rel="stylesheet" href="/css/invoices.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/viewQuotation.css" />
+  <title>Lista de Empaque</title>
+</head>
+<body>
+
+<%- include('../partials/navbar') %>
+
+<div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+  <a href="/packinglist/form" class="btn-action">➕ Crear lista de empaque</a>
+  <a href="/users/dashboard" class="btn-action">🏠 Ir al Dashboard</a>
+</div>
+
+<div class="table-container">
+  <h1 class="title" style="text-align: center; margin-bottom: 15px;">LISTADO DE LISTAS DE EMPAQUE</h1>
+
+  <!-- 🔍 Búsqueda -->
+  <form method="GET" action="/packinglists/list" class="search-bar">
+    <input
+      type="text"
+      name="search"
+      placeholder="Buscar por código, cliente o factura relacionada"
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+    />
+    <button type="submit">Buscar</button>
+  </form>
+
+  <% if (packingList.length === 0) { %>
+    <p style="text-align: center; margin-top: 20px;">❌ No hay listas de empaque registradas.</p>
+  <% } else { %>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Código</th>
+          <th>Factura</th>
+          <th>Cliente</th>
+          <th>Fecha de creación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% packingList.forEach(p => { %>
+          <tr>
+            <td><%= p.id %></td>
+            <td><%= p.packingCode %></td>
+            <td>Factura - <%= p.invoice.id %></td>
+            <td><%= p.invoice.customer.fullName || 'N/A' %></td>
+            <td><%= new Date(p.createdAt).toLocaleDateString() %></td>
+            <td>
+              <a href="/packinglist/view/<%= p.id %>" class="btn-view">🔍 Ver</a>
+              <form action="/packinglist/delete/<%= p.id %>" method="POST" style="display:inline;">
+                <button class="btn-delete" onclick="return confirm('¿Seguro que quieres eliminar esta lista de empaque?')">🗑️</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <!-- 📄 Paginación -->
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% if (currentPage > 1) { %>
+          <a href="?page=<%= currentPage - 1 %>&search=<%= search %>">&laquo; Anterior</a>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="?page=<%= i %>&search=<%= search %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <a href="?page=<%= currentPage + 1 %>&search=<%= search %>">Siguiente &raquo;</a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+</body>
+</html>
