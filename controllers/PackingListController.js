@@ -86,7 +86,7 @@ const packingListController = {
                 orderBy: { id: 'desc' },
             });
             const newCodeNumber = lastList ? lastList.id + 1 : 1;
-            return `PL-${String(newCodeNumber).padStart(4, '0')}`;
+            return String(newCodeNumber).padStart(4, '0'); // genera "0001", "0002", etc.
             };
 
             const packingCode = await generatePackingCode();
