@@ -18,6 +18,7 @@ const alertsRoutes = require('./routes/alertsRoutes');
 const quotationRoutes = require('./routes/quotationRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const tireTypeRoutes = require('./routes/tireTypeRoutes');
+const packingListRoutes = require('./routes/packingListRoutes');
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
@@ -88,6 +89,7 @@ app.use('/alerts', alertsRoutes);
 app.use('/quotations', quotationRoutes);
 app.use('/customers', customerRoutes);
 app.use('/tiretypes', tireTypeRoutes);
+app.use('/packinglist', packingListRoutes);
 
 //Middleware para asegurar que cualquier vaya a consola
 process.on('unhandledRejection', (reason) => {

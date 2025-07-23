@@ -1,0 +1,87 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <title>Lista de Empaque <%= packingList.packingCode %></title>
+  <link rel="stylesheet" href="/css/packingList.css" />
+  <link rel="stylesheet" href="/css/navButtons.css" />
+  <link rel="stylesheet" href="/css/viewQuotation.css">
+  <link rel="stylesheet" href="/css/invoices.css">
+  <link rel="stylesheet" href="/css/style.css" />
+  <script>
+    function exportToPDF() { window.print(); }
+  </script>
+</head>
+<body>
+
+    <%- include('../partials/navbar') %>
+
+    <div class="action-buttons no-print" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+        <a href="/packinglist/list" class="btn-action">📋 Ir a Lista</a>
+    </div>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="<%= isPdf ? `http://${host}/img/LOGO-SONIX-LTD.png` : '/img/LOGO-SONIX-LTD.png' %>" alt="Logo de la empresa" class="logo">
+        </div>
+
+        <header class="packList-header">
+            <h1 style="text-align: center;">Lista de Empaque <%= packingList.packingCode %></h1>
+            <% if (packingList.invoice) { %>
+            <p><strong>Factura:</strong> <%= packingList.invoice.invoiceCode %></p>
+            <p><strong>Cliente:</strong> <%= packingList.invoice.customer?.fullName || 'N/A' %></p>
+            <% } %>
+            <p><strong>Fecha:</strong> <%= new Date(packingList.createdAt).toLocaleDateString() %></p>
+        </header>
+
+        <section class="packList-items">
+            <h2>Ítems</h2>
+            <table class="packList-table">
+            <thead>
+                <tr>
+                <th>Llanta</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Peso x Und</th>
+                <th>CBM x Und</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% packingList.items.forEach(item => { 
+                    const tire = item.newTire || item.usedTire;
+                    const tipo = item.newTire ? 'Nueva' : 'Usada';
+                %>
+                <tr>
+                    <td><%= tire?.size || 'N/A' %></td>
+                    <td><%= tipo %></td>
+                    <td><%= item.quantity %></td>
+                    <td><%= item.unitWeight.toFixed(2) %> kg</td>
+                    <td><%= (item.cbm ?? 0).toFixed(2) %> m³</td>
+                </tr>
+                <% }) %>
+            </tbody>
+            </table>
+        </section>
+
+        <section class="packList-totals">
+            <h2>Totales</h2>
+            <p><strong>Total de llantas:</strong> <%= packingList.totalQuantity %></p>
+            <p><strong>Total de peso:</strong> <%= packingList.totalWeight.toFixed(2) %> kg</p>
+            <p><strong>Total CBM:</strong> <%= packingList.cbm.toFixed(2) %> m³</p>
+        </section>
+
+        <!-- ACCIONES -->
+        <div class="quotation-footer">
+            <% if (!isPdf) { %>
+            <div class="quotation-actions no-print">
+                <button onclick="exportToPDF()" class="btn-blue">🖨️ Imprimir</button>
+                <a href="/packinglist/export/<%= packingList.id %>" class="btn-yellow">📤 Exportar a Excel</a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

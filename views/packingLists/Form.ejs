@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/favicon-96x96.png" type="image/png">
+  <script src="https://kit.fontawesome.com/939dfff437.js" crossorigin="anonymous"></script>
+  <title>Crear Lista de Empaque</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/packingList.css">
+  <link rel="stylesheet" href="/css/navButtons.css" />
+</head>
+<body>
+
+  <%- include('../partials/navbar') %>
+
+  <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; margin-top: 20px; margin-left: 5px;">
+    <a href="/packinglist/list" class="btn-action">
+      📋 Ir a Lista
+    </a>
+  </div>
+
+  <div class="packingList-container">
+    <h1 class="titulo">CREAR LISTA DE EMPAQUE</h1>
+
+    <form action="/packinglist/create" method="POST" id="packingListForm">
+        <!-- Seleccionar factura -->
+        <div class="form-group">
+            <label for="invoiceId">Factura relacionada</label>
+            <select name="invoiceId" id="invoiceId" required>
+                <option value="">Seleccione una factura</option>
+                <% invoices.forEach(invoice => { %>
+                    <option value="<%= invoice.id %>"><%= invoice.invoiceCode %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <!-- Campo de observaciones -->
+        <div class="form-group">
+            <label for="observations">Observaciones</label>
+            <textarea name="observations" id="observations" class="packingList-textarea" placeholder="Observaciones opcionales..." rows="3"></textarea>
+        </div>
+
+        <!-- Agregar ítems -->
+        <div class="form-group">
+            <label for="tireSelect">Llantas</label>
+            <select id="tireSelect">
+                <option value="">Seleccione una llanta</option>
+                <% newTires.forEach(tire => { %>
+                    <option value="new-<%= tire.id %>">
+                        <%= tire.size %> - <%= tire.type?.name || 'Sin tipo' %> - Nueva
+                    </option>
+                <% }) %>
+                <% usedTires.forEach(tire => { %>
+                    <option value="used-<%= tire.id %>">
+                        <%= tire.size %> - <%= tire.type?.name || 'Sin tipo' %> - Usada
+                    </option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Cantidad</label>
+            <input type="number" id="quantity" min="1" placeholder="Cantidad" />
+        </div>
+
+        <div class="form-group">
+            <label for="weight">Peso por unidad (kg)</label>
+            <input type="number" step="0.01" id="weight" placeholder="Peso por unidad" />
+        </div>
+
+        <div class="form-group">
+            <label for="cbm">CBM por unidad (m³)</label>
+            <input type="number" step="0.01" id="cbm" placeholder="CBM por unidad" />
+        </div>
+
+        <button type="button" id="addTireBtn" class="btn-action">➕ Agregar ítem</button>
+
+        <!-- Tabla de ítems agregados -->
+        <div class="tabla-empaque-container">
+            <table id="tireTable" class="tabla-empaque">
+                <thead>
+                    <tr>
+                        <th>Llanta</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Peso x Und</th>
+                        <th>CBM x Und</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas se agregarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totales -->
+        <div class="totales-empaque">
+            <p><strong>Total de llantas:</strong> <span id="totalQuantity">0</span></p>
+            <p><strong>Total de peso:</strong> <span id="totalWeight">0.00</span> kg</p>
+            <p><strong>Total de CBM:</strong> <span id="totalCbm">0.00</span> m³</p>
+        </div>
+
+        <!-- Contenedor oculto para inputs con datos serializados -->
+        <div id="tireInputsContainer"></div>
+
+        <div class="form-actions">
+            <button type="submit">CREAR LISTA DE EMPAQUE</button>
+        </div>
+    </form>
+  </div>
+
+  <script src="/js/packingListForm.js"></script>
+</body>
+</html>
