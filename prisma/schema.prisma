@@ -163,6 +163,7 @@ model Invoice {
   totalQuantity Int      @default(0)
   customerId    Int
   userId        Int?
+  status        String   @default("activa") // 👈 NUEVO CAMPO
 
   customer Customer      @relation(fields: [customerId], references: [id])
   user     User?         @relation(fields: [userId], references: [id])

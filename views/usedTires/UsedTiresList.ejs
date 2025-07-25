@@ -66,43 +66,45 @@
         <h3 class="fecha-titulo">
           📅 <%= fecha %>
         </h3>
-        <table class="table-style">
-          <thead>
-            <tr>
-              <th>Marca</th>
-              <th>Referencia</th>
-              <th>Tipo de Vehículo</th>
-              <th>Peso</th>
-              <th>Cantidad</th>
-              <th>Precio Unitario</th>
-              <th>Precio Mayorista</th>
-              <th>Precio Detal</th>
-              <th>Ubicación</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% tiresGrouped[fecha].forEach(tire => { %>
-              <tr class="<%= tire.quantity <= tire.minStock ? 'stock-bajo' : '' %>"></tr>
-                <td><%= tire.brand.name %></td>
-                <td><%= tire.size %></td>
-                <td><%= tire.type.name %></td>
-                <td><%= tire.weight %></td>
-                <td><%= tire.quantity %></td>
-                <td><%= tire.priceUnit.toFixed(2) %> USD</td>
-                <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
-                <td><%= tire.priceRetail.toFixed(2) %> USD</td>
-                <td><%= tire.location.name %></td>
-                <td class="action-buttons">
-                  <a href="/usedtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
-                  <form action="/usedtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
-                    <button type="submit" class="btn-delete">Eliminar</button>
-                  </form>
-                </td>
+        <div class="table-container">
+          <table class="table-style">
+            <thead>
+              <tr>
+                <th>Marca</th>
+                <th>Referencia</th>
+                <th>Tipo de Vehículo</th>
+                <th>Peso</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Precio Mayorista</th>
+                <th>Precio Detal</th>
+                <th>Ubicación</th>
+                <th>Acciones</th>
               </tr>
-            <% }); %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <% tiresGrouped[fecha].forEach(tire => { %>
+                <tr class="<%= tire.quantity <= tire.minStock ? 'stock-bajo' : '' %>">
+                  <td><%= tire.brand.name %></td>
+                  <td><%= tire.size %></td>
+                  <td><%= tire.type.name %></td>
+                  <td><%= tire.weight %></td>
+                  <td><%= tire.quantity %></td>
+                  <td><%= tire.priceUnit.toFixed(2) %> USD</td>
+                  <td><%= tire.priceWholesale.toFixed(2) %> USD</td>
+                  <td><%= tire.priceRetail.toFixed(2) %> USD</td>
+                  <td><%= tire.location.name %></td>
+                  <td class="action-buttons">
+                    <a href="/usedtires/edit/<%= tire.id %>" class="btn-edit">Editar</a>
+                    <form action="/usedtires/<%= tire.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta llanta?');">
+                      <button type="submit" class="btn-delete">Eliminar</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
       <% } %>
 
        <!-- 📄 Paginación -->

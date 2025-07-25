@@ -550,7 +550,70 @@ exportInvoiceToExcel: async (req, res) => {
         console.error('ERROR AL CREAR FACTURA DESDE COTIZACIÓN:', error);
         res.status(500).send('ERROR INTERNO AL CREAR FACTURA DESDE COTIZACIÓN');
       }
-    }
+    },
+    cancelInvoice: async (req, res) => {
+      try {
+        const invoiceId = parseInt(req.params.id);
+
+        if (isNaN(invoiceId)) {
+          return res.status(400).send('ID de factura no válido');
+        }
+
+        const invoice = await prisma.invoice.findUnique({
+          where: { id: invoiceId },
+          include: {
+            items: true
+          }
+        });
+
+        if (!invoice) {
+          return res.status(404).send('Factura no encontrada');
+        }
+
+        // Si ya está anulada, no hacer nada
+        if (invoice.status === 'anulada') {
+          return res.redirect(`/invoices/${invoice.id}?info=Factura ya está anulada`);
+        }
+
+        // 🔄 Devolver llantas al stock
+        for (const item of invoice.items) {
+          if (item.newTireId) {
+            await prisma.newTire.update({
+              where: { id: item.newTireId },
+              data: {
+                quantity: {
+                  increment: item.quantity
+                }
+              }
+            });
+          } else if (item.usedTireId) {
+            await prisma.usedTire.update({
+              where: { id: item.usedTireId },
+              data: {
+                quantity: {
+                  increment: item.quantity
+                }
+              }
+            });
+          }
+        }
+
+        // 🚫 Marcar la factura como "anulada"
+        await prisma.invoice.update({
+          where: { id: invoiceId },
+          data: {
+            status: 'anulada'
+          }
+        });
+
+        console.log(`✅ Factura anulada correctamente (ID ${invoiceId})`);
+        res.redirect(`/invoices/${invoiceId}?success=Factura anulada`);
+
+      } catch (error) {
+        console.error('💥 Error al anular factura:\n', error);
+        res.status(500).send('Error interno al anular la factura');
+      }
+    },
 };
 
 module.exports = invoiceController;

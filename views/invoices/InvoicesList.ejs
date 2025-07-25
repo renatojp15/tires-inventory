@@ -58,8 +58,13 @@
               <td colspan="5">📅 <%= dateKey %></td>
             </tr>
             <% groupedByDate[dateKey].forEach(invoice => { %>
-              <tr>
-                <td><%= invoice.invoiceCode %></td>
+              <tr class="<%= invoice.status === 'anulada' ? 'row-anulada' : '' %>">
+                <td>
+                  <%= invoice.invoiceCode %>
+                  <% if (invoice.status === 'anulada') { %>
+                    <div style="color: red; font-size: 0.8em;">🚫 Anulada</div>
+                  <% } %>
+                </td>
                 <td><%= invoice.customer.fullName.replace(/\b\w/g, c => c.toUpperCase()) %></td>
                 <td><%= new Date(invoice.date).toLocaleDateString() %></td>
                 <td>$<%= invoice.totalAmount.toFixed(2) %></td>

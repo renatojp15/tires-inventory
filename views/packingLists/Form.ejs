@@ -30,7 +30,7 @@
             <select name="invoiceId" id="invoiceId" required>
                 <option value="">Seleccione una factura</option>
                 <% invoices.forEach(invoice => { %>
-                    <option value="<%= invoice.id %>"><%= invoice.invoiceCode %></option>
+                    <option value="<%= invoice.id %>"><p>Factura: </p><%= invoice.invoiceCode %></option>
                 <% }) %>
             </select>
         </div>
